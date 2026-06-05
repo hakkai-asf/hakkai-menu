@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '@/lib/contexts/AudioContext';
 import CharacterViewer from '@/components/Character/CharacterViewer';
@@ -48,6 +48,14 @@ export default function ProfileSection() {
   const { playHover, playToggle } = useAudio();
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const rotate = (dir: number) => { setRotation(r => r + dir * 30); playToggle(); };
   const zoomIn = () => { setZoom(z => Math.min(1.4, z + 0.1)); playToggle(); };
@@ -56,7 +64,9 @@ export default function ProfileSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex flex-col md:flex-row overflow-hidden bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-20 md:pt-0"
+      className={`fixed inset-0 z-10 flex flex-col md:flex-row bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-20 md:pt-0 ${
+        isMobile ? 'overflow-y-auto scrollable' : 'overflow-hidden'
+      }`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -65,13 +75,13 @@ export default function ProfileSection() {
       {/* Character viewer column */}
       <motion.div
         className="flex flex-col items-center justify-center flex-shrink-0 relative"
-        style={{ width: 'clamp(300px, 35vw, 440px)', paddingBottom: 40 }}
+        style={{ width: isMobile ? '100%' : 'clamp(300px, 35vw, 440px)', paddingBottom: isMobile ? 20 : 40 }}
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {/* Character — fixed-height box so the WebGL canvas has dimensions */}
-        <div style={{ width: '100%', height: 480, position: 'relative' }}>
+        <div style={{ width: '100%', height: isMobile ? 330 : 480, position: 'relative' }}>
           <CharacterViewer mode="profile" rotation={rotation} zoom={zoom} onRotate={d => setRotation(r => r + d)} />
         </div>
 
@@ -103,8 +113,8 @@ export default function ProfileSection() {
 
       {/* Data panel column */}
       <motion.div
-        className="flex-1 overflow-y-auto scrollable py-8 pr-6 flex flex-col gap-6"
-        style={{ paddingLeft: 32 }}
+        className={isMobile ? "flex-grow px-4 pb-16 flex flex-col gap-6" : "flex-1 overflow-y-auto scrollable py-8 pr-6 flex flex-col gap-6"}
+        style={{ paddingLeft: isMobile ? 16 : 32 }}
         initial={{ x: 30, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}

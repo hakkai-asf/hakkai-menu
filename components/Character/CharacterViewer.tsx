@@ -1,260 +1,299 @@
 'use client';
-import React, { useRef, useEffect, useCallback } from 'react';
-import * as THREE from 'three';
+import React, { useRef, useMemo, Suspense, useEffect, useState } from 'react';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import * as THREE from 'three';
 
 interface CharacterViewerProps {
   mode: 'hero' | 'profile';
-  /** External Y-rotation in degrees (fed from button clicks) */
   rotation?: number;
-  /** External zoom scale */
   zoom?: number;
   onRotate?: (delta: number) => void;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   Error boundary for catching FBX load/parse or WebGL errors
+   Must render a 3D component since it is inside the Canvas
+   ───────────────────────────────────────────────────────────── */
+class CanvasErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean; error: any }
+> {
+  state = { hasError: false, error: null };
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("CanvasErrorBoundary caught a rendering error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
+function FallbackMesh() {
+  const mesh = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (mesh.current) {
+      mesh.current.rotation.y = state.clock.elapsedTime * 0.8;
+      mesh.current.rotation.x = state.clock.elapsedTime * 0.4;
+    }
+  });
+  return (
+    <mesh ref={mesh} position={[0, 1.1, 0]}>
+      <octahedronGeometry args={[0.5, 0]} />
+      <meshStandardMaterial color="#C8A96E" wireframe roughness={0.15} metalness={0.85} />
+    </mesh>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Inner model component — renders inside <Canvas>
+   Uses refs passed from parent so nothing re-renders the canvas
+   ───────────────────────────────────────────────────────────── */
+interface ModelProps {
+  targetRotRef:   React.MutableRefObject<number>;
+  currentRotRef:  React.MutableRefObject<number>;
+  targetZoomRef:  React.MutableRefObject<number>;
+  currentZoomRef: React.MutableRefObject<number>;
+}
+
+function FBXModel({ targetRotRef, currentRotRef, targetZoomRef, currentZoomRef }: ModelProps) {
+  const fbx    = useLoader(FBXLoader, '/character-model/character.fbx');
+  const group  = useRef<THREE.Group>(null);
+  const innerGroup = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+  const mixerRef   = useRef<THREE.AnimationMixer | null>(null);
+
+  /* Compute scaling & position offsets purely without mutating the cached asset */
+  const { scale, offsetX, offsetY, offsetZ } = useMemo(() => {
+    // Compute bounding box from pristine cached fbx object
+    const box = new THREE.Box3().setFromObject(fbx);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scaleVal = maxDim > 0 ? (2.2 / maxDim) : 1;
+
+    // We want the average X, Z to be 0 and min Y to be 0
+    return {
+      scale: scaleVal,
+      offsetX: -center.x * scaleVal,
+      offsetY: -box.min.y * scaleVal,
+      offsetZ: -center.z * scaleVal,
+    };
+  }, [fbx]);
+
+  /* Traverses materials to enable shadows & update settings */
+  useEffect(() => {
+    fbx.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      mesh.castShadow    = true;
+      mesh.receiveShadow = true;
+
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      mats.forEach((m: THREE.Material) => {
+        if (m instanceof THREE.MeshPhongMaterial) {
+          m.shininess   = 60;
+          m.needsUpdate = true;
+        }
+      });
+    });
+  }, [fbx]);
+
+  /* Lifecycle and mixer manager for animations */
+  useEffect(() => {
+    if (fbx.animations && fbx.animations.length > 0) {
+      const mixer = new THREE.AnimationMixer(fbx);
+      const action = mixer.clipAction(fbx.animations[0]);
+      action.play();
+      mixerRef.current = mixer;
+      return () => {
+        action.stop();
+        mixer.uncacheRoot(fbx);
+        mixerRef.current = null;
+      };
+    }
+  }, [fbx]);
+
+  /* Zero-lag animation loop */
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+
+    /* Smooth rotation (applied to outer group) */
+    currentRotRef.current += (targetRotRef.current - currentRotRef.current) * 0.1;
+    if (group.current) {
+      group.current.rotation.y = THREE.MathUtils.degToRad(currentRotRef.current);
+    }
+
+    /* Smooth zoom (camera Z position) */
+    currentZoomRef.current += (targetZoomRef.current - currentZoomRef.current) * 0.12;
+    (camera as THREE.PerspectiveCamera).position.z = 4.5 / currentZoomRef.current;
+
+    /* Idle bobbing (applied to inner group position relative to root) */
+    if (innerGroup.current) {
+      innerGroup.current.position.y = offsetY + Math.sin(t * 1.1) * 0.028;
+    }
+
+    /* Update animations */
+    if (mixerRef.current) {
+      mixerRef.current.update(delta);
+    }
+  });
+
+  return (
+    <group ref={group}>
+      <group ref={innerGroup} scale={[scale, scale, scale]} position={[offsetX, offsetY, offsetZ]}>
+        <primitive object={fbx} />
+      </group>
+    </group>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Loading placeholder rendered inside the Canvas via Suspense
+   ───────────────────────────────────────────────────────────── */
+function LoadingPlaceholder() {
+  const mesh = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (mesh.current) {
+      mesh.current.rotation.y = state.clock.elapsedTime * 0.8;
+    }
+  });
+  return (
+    <mesh ref={mesh} position={[0, 1.1, 0]}>
+      <octahedronGeometry args={[0.3, 0]} />
+      <meshStandardMaterial color="#C8A96E" wireframe />
+    </mesh>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Main exported component
+   ───────────────────────────────────────────────────────────── */
 export default function CharacterViewer({
   mode,
   rotation = 0,
   zoom = 1,
   onRotate,
 }: CharacterViewerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
-  /* ── Mutable refs so the RAF loop never re-creates closures ── */
-  const rendererRef   = useRef<THREE.WebGLRenderer | null>(null);
-  const sceneRef      = useRef<THREE.Scene | null>(null);
-  const cameraRef     = useRef<THREE.PerspectiveCamera | null>(null);
-  const modelRef      = useRef<THREE.Group | null>(null);
-  const rafRef        = useRef<number>(0);
-  const clockRef      = useRef(new THREE.Clock());
-
-  /* live values the RAF reads without closures */
-  const targetYRotRef = useRef(0);   // degrees
-  const currentYRotRef = useRef(0);  // degrees (smoothed)
-  const targetZoomRef = useRef(zoom);
+  /* Control refs — never cause a re-render */
+  const targetRotRef   = useRef(rotation);
+  const currentRotRef  = useRef(rotation);
+  const targetZoomRef  = useRef(zoom);
   const currentZoomRef = useRef(zoom);
 
-  const isDraggingRef = useRef(false);
-  const lastPointerXRef = useRef(0);
+  useEffect(() => { targetRotRef.current  = rotation; }, [rotation]);
+  useEffect(() => { targetZoomRef.current = zoom;     }, [zoom]);
 
-  /* ── Sync external props into mutable refs ── */
-  useEffect(() => { targetYRotRef.current = rotation; }, [rotation]);
-  useEffect(() => { targetZoomRef.current = zoom; }, [zoom]);
-
-  /* ── Build scene once ── */
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    setMounted(true);
+  }, []);
 
-    /* Renderer */
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-    });
-    const { clientWidth: w, clientHeight: h } = container;
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-    renderer.setClearColor(0x000000, 0); // transparent bg
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
+  /* Drag-to-rotate */
+  const isDragging = useRef(false);
+  const lastPtrX   = useRef(0);
 
-    /* Scene */
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
-
-    /* Camera */
-    const camera = new THREE.PerspectiveCamera(45, w / h, 0.01, 1000);
-    camera.position.set(0, 1.4, 3.5);
-    camera.lookAt(0, 1, 0);
-    cameraRef.current = camera;
-
-    /* Lights */
-    const ambient = new THREE.AmbientLight(0xffeedd, 0.6);
-    scene.add(ambient);
-
-    const key = new THREE.DirectionalLight(0xfff4e0, 1.8);
-    key.position.set(2, 5, 3);
-    key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024);
-    key.shadow.camera.near = 0.1;
-    key.shadow.camera.far = 30;
-    scene.add(key);
-
-    const fill = new THREE.DirectionalLight(0x4ecdc4, 0.5);
-    fill.position.set(-3, 2, 1);
-    scene.add(fill);
-
-    const rim = new THREE.DirectionalLight(0xc8a96e, 0.8);
-    rim.position.set(0, 3, -3);
-    scene.add(rim);
-
-    /* Ground glow disc */
-    const discGeo = new THREE.CircleGeometry(0.7, 32);
-    const discMat = new THREE.MeshBasicMaterial({
-      color: 0xc8a96e,
-      transparent: true,
-      opacity: 0.12,
-      depthWrite: false,
-    });
-    const disc = new THREE.Mesh(discGeo, discMat);
-    disc.rotation.x = -Math.PI / 2;
-    disc.position.y = 0.001;
-    scene.add(disc);
-
-    /* Load FBX */
-    const loader = new FBXLoader();
-    loader.load(
-      '/character-model/character.fbx',
-      (fbx) => {
-        /* Normalize scale — FBX files are often in cm (scale 1 = 1 cm) */
-        const box = new THREE.Box3().setFromObject(fbx);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const desiredHeight = 2.2;
-        const scaleFactor = desiredHeight / maxDim;
-        fbx.scale.setScalar(scaleFactor);
-
-        /* Centre model at Y = 0 */
-        box.setFromObject(fbx);
-        const centre = new THREE.Vector3();
-        box.getCenter(centre);
-        fbx.position.sub(centre);
-        fbx.position.y += desiredHeight / 2;
-
-        /* Enable shadows on all meshes */
-        fbx.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            /* Boost material quality */
-            const mesh = child as THREE.Mesh;
-            if (Array.isArray(mesh.material)) {
-              mesh.material.forEach(m => {
-                if (m instanceof THREE.MeshPhongMaterial || m instanceof THREE.MeshLambertMaterial) {
-                  (m as any).envMapIntensity = 0.5;
-                }
-              });
-            }
-          }
-        });
-
-        modelRef.current = fbx;
-        scene.add(fbx);
-      },
-      undefined,
-      (err) => console.error('FBX load error:', err),
-    );
-
-    /* Animation loop — all read from refs, zero React setState */
-    const animate = () => {
-      rafRef.current = requestAnimationFrame(animate);
-      const t = clockRef.current.getElapsedTime();
-
-      /* Smooth Y rotation */
-      const yDiff = targetYRotRef.current - currentYRotRef.current;
-      currentYRotRef.current += yDiff * 0.08;
-
-      /* Smooth zoom (camera Z) */
-      const zDiff = targetZoomRef.current - currentZoomRef.current;
-      currentZoomRef.current += zDiff * 0.1;
-
-      if (modelRef.current) {
-        modelRef.current.rotation.y = THREE.MathUtils.degToRad(currentYRotRef.current);
-        /* Gentle idle bob */
-        modelRef.current.position.y =
-          (modelRef.current.userData.baseY ?? 0) + Math.sin(t * 1.2) * 0.025;
-      }
-
-      if (cameraRef.current) {
-        /* Zoom by moving camera closer/further */
-        const baseZ = 3.5;
-        cameraRef.current.position.z = baseZ / currentZoomRef.current;
-      }
-
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    /* Resize observer */
-    const ro = new ResizeObserver(() => {
-      if (!container) return;
-      const { clientWidth: nw, clientHeight: nh } = container;
-      renderer.setSize(nw, nh);
-      camera.aspect = nw / nh;
-      camera.updateProjectionMatrix();
-    });
-    ro.observe(container);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
-      renderer.dispose();
-      container.removeChild(renderer.domElement);
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ── Pointer drag to rotate (profile mode only) ── */
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (mode !== 'profile') return;
-    isDraggingRef.current = true;
-    lastPointerXRef.current = e.clientX;
+    isDragging.current = true;
+    lastPtrX.current   = e.clientX;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  }, [mode]);
+  };
 
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
-    const dx = e.clientX - lastPointerXRef.current;
-    lastPointerXRef.current = e.clientX;
-    const delta = dx * 0.5;
-    targetYRotRef.current += delta;
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const dx    = e.clientX - lastPtrX.current;
+    lastPtrX.current = e.clientX;
+    const delta = dx * 0.55;
+    targetRotRef.current += delta;
     onRotate?.(delta);
-  }, [onRotate]);
+  };
 
-  const onPointerUp = useCallback(() => { isDraggingRef.current = false; }, []);
+  const handlePointerUp = () => { isDragging.current = false; };
 
-  const size = mode === 'hero'
-    ? { width: '100%', height: '100%' }
-    : { width: '100%', height: '100%' };
+  // Render static styled container during SSR to prevent layout shifts
+  if (!mounted) {
+    return (
+      <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: 0, top: '15%', width: 3, height: '60%', background: 'linear-gradient(to bottom, transparent, rgba(200,169,110,0.5), transparent)', filter: 'blur(2px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', left: 0, top: '25%', width: 2, height: '40%', background: 'linear-gradient(to bottom, transparent, rgba(78,205,196,0.25), transparent)', filter: 'blur(2px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '4%', left: '50%', transform: 'translateX(-50%)', width: '55%', height: 40, background: 'radial-gradient(ellipse, rgba(200,169,110,0.22) 0%, transparent 70%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
+      </div>
+    );
+  }
 
   return (
     <div
-      ref={containerRef}
-      style={{
-        ...size,
-        position: 'relative',
-        cursor: mode === 'profile' ? 'grab' : 'default',
-        touchAction: 'none',
-      }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerLeave={onPointerUp}
+      style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
     >
-      {/* Gold rim light overlays (CSS-level) */}
-      <div style={{
-        position: 'absolute', right: 0, top: '15%', width: 3, height: '60%',
-        background: 'linear-gradient(to bottom, transparent, rgba(200,169,110,0.5), transparent)',
-        filter: 'blur(2px)', pointerEvents: 'none', zIndex: 1,
-      }} />
-      <div style={{
-        position: 'absolute', left: 0, top: '25%', width: 2, height: '40%',
-        background: 'linear-gradient(to bottom, transparent, rgba(78,205,196,0.25), transparent)',
-        filter: 'blur(2px)', pointerEvents: 'none', zIndex: 1,
-      }} />
-      {/* Ground glow */}
-      <div style={{
-        position: 'absolute', bottom: '4%', left: '50%', transform: 'translateX(-50%)',
-        width: '55%', height: 40,
-        background: 'radial-gradient(ellipse, rgba(200,169,110,0.2) 0%, transparent 70%)',
-        filter: 'blur(10px)', pointerEvents: 'none', zIndex: 1,
-      }} />
+      <Canvas
+        gl={{
+          antialias:           true,
+          alpha:               true,
+          powerPreference:     'high-performance',
+          toneMapping:         THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.5,
+        }}
+        camera={{ position: [0, 1.1, 4.5], fov: 50, near: 0.01, far: 5000 }}
+        shadows
+        style={{ position: 'absolute', inset: 0, cursor: mode === 'profile' ? 'grab' : 'default' }}
+      >
+        {/* Lights */}
+        <ambientLight intensity={2.0} color="#fff8ee" />
+        <directionalLight
+          position={[3, 6, 4]}
+          intensity={3.0}
+          color="#fff4e0"
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
+        <directionalLight position={[-4, 2, 2]} intensity={1.0} color="#4ecdc4" />
+        <directionalLight position={[0, 4, -4]}  intensity={1.5} color="#c8a96e" />
+        <pointLight position={[0, 0, 3]} intensity={0.8} />
+
+        {/* Ground disc for dynamic shadows */}
+        <mesh rotation-x={-Math.PI / 2} position-y={0.001} receiveShadow>
+          <planeGeometry args={[15, 15]} />
+          <shadowMaterial opacity={0.4} />
+        </mesh>
+
+        {/* Decorative golden circle base */}
+        <mesh rotation-x={-Math.PI / 2} position-y={0.002}>
+          <circleGeometry args={[0.9, 48]} />
+          <meshBasicMaterial color="#c8a96e" transparent opacity={0.12} depthWrite={false} />
+        </mesh>
+
+        {/* FBX model with Suspense & Error Boundary */}
+        <Suspense fallback={<LoadingPlaceholder />}>
+          <CanvasErrorBoundary fallback={<FallbackMesh />}>
+            <FBXModel
+              targetRotRef={targetRotRef}
+              currentRotRef={currentRotRef}
+              targetZoomRef={targetZoomRef}
+              currentZoomRef={currentZoomRef}
+            />
+          </CanvasErrorBoundary>
+        </Suspense>
+      </Canvas>
+
+      {/* CSS rim-light overlays */}
+      <div style={{ position: 'absolute', right: 0, top: '15%', width: 3, height: '60%', background: 'linear-gradient(to bottom, transparent, rgba(200,169,110,0.5), transparent)', filter: 'blur(2px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', left: 0, top: '25%', width: 2, height: '40%', background: 'linear-gradient(to bottom, transparent, rgba(78,205,196,0.25), transparent)', filter: 'blur(2px)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '4%', left: '50%', transform: 'translateX(-50%)', width: '55%', height: 40, background: 'radial-gradient(ellipse, rgba(200,169,110,0.22) 0%, transparent 70%)', filter: 'blur(10px)', pointerEvents: 'none' }} />
     </div>
   );
 }
