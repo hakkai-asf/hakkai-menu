@@ -43,7 +43,7 @@ const TERMINAL_LINES = [
   '> OPERATOR: Harry Nielsen M. Lagto',
   '> STATUS: AVAILABLE FOR WORK',
   '> LOCATION: Metro Manila, Philippines',
-  '> ROLE: Mobile & Web Developer',
+  '> ROLE: Aspiring Fullstack Developer',
   '> CLEARANCE: Open Contact',
   '> AWAITING TRANSMISSION...',
 ];

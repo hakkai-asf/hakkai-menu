@@ -70,8 +70,10 @@ export default function ProfileSection() {
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {/* Character */}
-        <CharacterViewer mode="profile" rotation={rotation} zoom={zoom} onRotate={d => setRotation(r => r + d)} />
+        {/* Character — fixed-height box so the WebGL canvas has dimensions */}
+        <div style={{ width: '100%', height: 480, position: 'relative' }}>
+          <CharacterViewer mode="profile" rotation={rotation} zoom={zoom} onRotate={d => setRotation(r => r + d)} />
+        </div>
 
         {/* Controls */}
         <div className="flex items-center gap-3 mt-4">

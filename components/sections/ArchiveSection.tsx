@@ -35,7 +35,7 @@ export default function ArchiveSection() {
     return () => clearInterval(t);
   }, []);
 
-  const zoomIn  = () => { setZoom(z => Math.min(2.5, parseFloat((z + 0.25).toFixed(2)))); playToggle(); };
+  const zoomIn = () => { setZoom(z => Math.min(2.5, parseFloat((z + 0.25).toFixed(2)))); playToggle(); };
   const zoomOut = () => { setZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2)))); playToggle(); };
   const resetZoom = () => { setZoom(1.0); playToggle(); };
 
@@ -97,7 +97,7 @@ export default function ArchiveSection() {
                   letterSpacing: '0.04em',
                   color: line.includes('GRANTED') ? '#2ECC71'
                     : line.includes('ACCESSING') ? '#4ECDC4'
-                    : 'rgba(200,169,110,0.7)',
+                      : 'rgba(200,169,110,0.7)',
                 }}
               >
                 {line}
@@ -134,7 +134,7 @@ export default function ArchiveSection() {
                   Developer Portfolio
                 </h3>
                 <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C8A96E', marginTop: 2 }}>
-                  Harry Nielsen M. Lagto · Mobile &amp; Web Developer
+                  Harry Nielsen M. Lagto · Aspiring Fullstack Developer
                 </p>
               </div>
               <div style={{ background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.3)', padding: '4px 12px' }}>
