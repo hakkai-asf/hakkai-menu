@@ -1,0 +1,566 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --color-gold: #C8A96E;
+  --color-gold-light: #E8C98E;
+  --color-gold-dark: #A87940;
+  --color-gold-glow: rgba(200, 169, 110, 0.35);
+  --color-teal: #4ECDC4;
+  --color-teal-glow: rgba(78, 205, 196, 0.35);
+  --color-bg: #0A0A0F;
+  --color-bg2: #0D0D16;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-hover: rgba(255, 255, 255, 0.08);
+  --color-border: rgba(200, 169, 110, 0.2);
+  --color-border-active: rgba(200, 169, 110, 0.7);
+  --color-danger: #E63946;
+  --color-success: #2ECC71;
+  --color-text: #E8E0D4;
+  --color-text-muted: #E8E0D4;
+  --color-text-dim: #E8E0D4;
+
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --transition-fast: 0.15s ease;
+  --transition-mid: 0.3s ease;
+  --transition-slow: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-cinematic: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  cursor: default;
+  user-select: none;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 4px;
+  background: transparent;
+}
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-dark);
+  border-radius: 0;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+.font-mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   CLIP PATHS (Sharp Corner Cuts — AAA UI language)
+   ============================================================ */
+.clip-corner-tl {
+  clip-path: polygon(16px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 16px);
+}
+.clip-corner-tr {
+  clip-path: polygon(0% 0%, calc(100% - 16px) 0%, 100% 16px, 100% 100%, 0% 100%);
+}
+.clip-corner-br {
+  clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0% 100%);
+}
+.clip-corner-bl {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 16px 100%, 0% calc(100% - 16px));
+}
+.clip-corner-all {
+  clip-path: polygon(
+    16px 0%, calc(100% - 16px) 0%,
+    100% 16px, 100% calc(100% - 16px),
+    calc(100% - 16px) 100%, 16px 100%,
+    0% calc(100% - 16px), 0% 16px
+  );
+}
+.clip-corner-sm {
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+}
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+.panel {
+  background: rgba(10, 10, 15, 0.85);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 4px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.panel-gold {
+  border-color: var(--color-border-active);
+  box-shadow: 0 0 20px var(--color-gold-glow), inset 0 0 20px rgba(200,169,110,0.03);
+}
+
+/* ============================================================
+   GOLD RULE LINES
+   ============================================================ */
+.rule-gold {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+.rule-gold-left {
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-gold), transparent);
+}
+.rule-teal {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-teal), transparent);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-gold);
+  border: none;
+  padding: 10px 28px;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+.btn-primary:hover {
+  background: var(--color-gold-light);
+  box-shadow: 0 0 20px var(--color-gold-glow);
+}
+
+.btn-ghost {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  clip-path: polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px);
+}
+.btn-ghost:hover {
+  border-color: var(--color-gold);
+  background: rgba(200,169,110,0.08);
+  box-shadow: 0 0 12px var(--color-gold-glow);
+}
+
+/* ============================================================
+   SECTION LABELS
+   ============================================================ */
+.section-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  opacity: 1;
+}
+
+/* ============================================================
+   MENU ITEM
+   ============================================================ */
+.menu-item {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e3d7c4; /* High-contrast warm off-white cream */
+  opacity: 1 !important; /* Force full opacity as requested */
+  cursor: pointer;
+  transition: color var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+  position: relative;
+  padding: 8px 0;
+  line-height: 1.2;
+}
+.menu-item:hover,
+.menu-item.active {
+  color: var(--color-gold);
+  opacity: 1 !important;
+}
+.menu-item::after {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 2px;
+  height: 50%;
+  background: var(--color-gold);
+  transition: transform var(--transition-fast);
+}
+.menu-item:hover::after,
+.menu-item.active::after {
+  transform: translateY(-50%) scaleY(1);
+}
+.menu-item:hover {
+  transform: translateX(6px);
+}
+
+/* ============================================================
+   STATUS BADGE
+   ============================================================ */
+.status-available {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-success);
+}
+.status-available::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #2ECC71; }
+  50% { opacity: 0.6; box-shadow: 0 0 16px #2ECC71; }
+}
+
+/* ============================================================
+   CHARACTER ANIMATIONS
+   ============================================================ */
+@keyframes idle-breathe {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  40% { transform: scaleY(1.015) translateY(-3px); }
+  60% { transform: scaleY(1.018) translateY(-5px); }
+}
+
+@keyframes idle-shift {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  30% { transform: translateX(2px) rotate(0.3deg); }
+  70% { transform: translateX(-2px) rotate(-0.3deg); }
+}
+
+@keyframes head-bob {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  25% { transform: rotate(1deg) translateY(-1px); }
+  75% { transform: rotate(-0.5deg) translateY(1px); }
+}
+
+@keyframes particle-drift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(var(--drift-x, 20px)); opacity: 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan-line {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+@keyframes bg-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes noise {
+  0% { background-position: 0 0; }
+  100% { background-position: 300px 300px; }
+}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+.loading-bar-track {
+  height: 1px;
+  background: rgba(200, 169, 110, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+.loading-bar-fill {
+  height: 100%;
+  background: #C8A96E;
+  box-shadow: 0 0 8px rgba(200, 169, 110, 0.5);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+/* ============================================================
+   SKILL BAR
+   ============================================================ */
+.skill-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+}
+.skill-bar-fill {
+  height: 100%;
+  position: relative;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================
+   HUD
+   ============================================================ */
+.hud-container {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--color-text-dim);
+}
+.hud-label {
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  opacity: 0.5;
+}
+.hud-value {
+  color: var(--color-text-muted);
+  font-size: 0.6rem;
+}
+
+/* ============================================================
+   ACHIEVEMENT BADGE
+   ============================================================ */
+.achievement-badge {
+  background: rgba(200,169,110,0.08);
+  border: 1px solid rgba(200,169,110,0.25);
+  padding: 10px 14px;
+  position: relative;
+  clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+  transition: all var(--transition-mid);
+  cursor: default;
+}
+.achievement-badge:hover {
+  background: rgba(200,169,110,0.15);
+  border-color: rgba(200,169,110,0.6);
+  box-shadow: 0 0 16px var(--color-gold-glow);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   TECH TAG
+   ============================================================ */
+.tech-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--color-teal);
+  background: rgba(78,205,196,0.08);
+  border: 1px solid rgba(78,205,196,0.25);
+  padding: 3px 8px;
+  display: inline-block;
+}
+
+/* ============================================================
+   MISSION CARD
+   ============================================================ */
+.mission-card {
+  background: rgba(10,10,15,0.8);
+  border: 1px solid var(--color-border);
+  position: relative;
+  cursor: pointer;
+  transition: all var(--transition-mid);
+  overflow: hidden;
+}
+.mission-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,169,110,0.05) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition-mid);
+}
+.mission-card:hover::before { opacity: 1; }
+.mission-card:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 30px rgba(200,169,110,0.15), inset 0 0 20px rgba(200,169,110,0.03);
+  transform: translateX(4px);
+}
+.mission-card.selected {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 40px rgba(200,169,110,0.2);
+}
+
+/* ============================================================
+   TERMINAL
+   ============================================================ */
+.terminal-line {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-teal);
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+}
+.terminal-prompt::before {
+  content: '> ';
+  color: var(--color-gold);
+}
+
+/* ============================================================
+   NOISE OVERLAY
+   ============================================================ */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5; /* Lowered below active panels (z-10) and menu (z-40) but above 3D world (z-0) */
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ============================================================
+   VIGNETTE
+   ============================================================ */
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4; /* Lowered below active panels (z-10) and menu (z-40) but above 3D world (z-0) */
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.85) 100%);
+}
+
+/* ============================================================
+   CORNER DECORATIONS
+   ============================================================ */
+.corner-tl::before,
+.corner-tl::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.corner-tl::before {
+  width: 20px;
+  height: 1px;
+  background: var(--color-gold);
+}
+.corner-tl::after {
+  width: 1px;
+  height: 20px;
+  background: var(--color-gold);
+}
+
+/* ============================================================
+   PAGE TRANSITIONS
+   ============================================================ */
+.page-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.page-exit {
+  opacity: 1;
+}
+.page-exit-active {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* ============================================================
+   RANGE INPUT STYLE
+   ============================================================ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+input[type="range"]::-webkit-slider-track {
+  background: rgba(255,255,255,0.08);
+  height: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: var(--color-gold);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 8px var(--color-gold-glow);
+  margin-top: -5px;
+}
+
+/* ============================================================
+   SCROLLABLE AREA
+   ============================================================ */
+.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-dark) transparent;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .menu-item { font-size: 1.2rem; }
+  html, body { overflow: auto; }
+}

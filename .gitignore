@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.next/**
+.DS_Store
+.vscode/
+.env
+.env.local
+.vscode/**
+public/cv/*.pdf
+# Optional: ignore logs
+*.log
+# Ignore macOS metadata
+*.DS_Store
