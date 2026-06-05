@@ -255,14 +255,13 @@ export default function ProjectsSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4]"
-      style={{ paddingLeft: 'clamp(280px, 30vw, 400px)' }}
+      className="fixed inset-0 z-10 flex flex-col md:flex-row overflow-hidden bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-16 md:pt-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <div className="flex flex-1 py-8 px-6 gap-6 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 py-8 px-6 gap-6 overflow-hidden">
         
         {/* ══════════════════════ LEFT PANEL: INVENTORY LIST ══════════════════════ */}
         <motion.div

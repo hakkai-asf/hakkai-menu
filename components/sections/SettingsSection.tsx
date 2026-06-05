@@ -85,8 +85,7 @@ export default function SettingsSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4]"
-      style={{ paddingLeft: 'clamp(280px, 30vw, 400px)' }}
+      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-16 md:pt-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

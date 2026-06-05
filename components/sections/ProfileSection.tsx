@@ -56,8 +56,7 @@ export default function ProfileSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4]"
-      style={{ paddingLeft: 'clamp(280px, 30vw, 400px)' }}
+      className="fixed inset-0 z-10 flex flex-col md:flex-row overflow-hidden bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-20 md:pt-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -120,7 +119,7 @@ export default function ProfileSection() {
             Harry Nielsen M. Lagto
           </h1>
           <p style={{ fontFamily: 'Cinzel, Georgia, serif', fontSize: '0.88rem', color: '#C8A96E', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 4 }}>
-            Mobile & Web Developer
+            Aspiring Fullstack Developer
           </p>
           <div className="flex flex-wrap gap-4 mt-4">
             {[

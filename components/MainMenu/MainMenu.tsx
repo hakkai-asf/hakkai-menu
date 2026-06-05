@@ -82,6 +82,18 @@ export default function MainMenu() {
   const { playHover, playSelect, playTransition, playBGM, playConfirm } = useAudio();
   const [hoveredItem, setHoveredItem] = useState<string | Section | null>(null);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const showMenu = !isMobile || currentSection === 'menu' || mobileMenuOpen;
+
   /* ── Title-screen nav: select item and enter directly ── */
   const handleTitleMenuSelect = (id: Section) => {
     playBGM('cinematic');
@@ -95,6 +107,7 @@ export default function MainMenu() {
 
   /* ── Inner-menu nav ── */
   const handleSelect = (id: Section) => {
+    if (isMobile) setMobileMenuOpen(false);
     if (id === currentSection) {
       // Clicking the active item again → close/unselect, return to menu home
       playSelect();
@@ -289,12 +302,34 @@ export default function MainMenu() {
   /* ════════════════════════════════════════════
      INNER MAIN MENU (compact nav rail)
      ════════════════════════════════════════════ */
+  if (!showMenu) {
+    return (
+      <div className="fixed top-6 right-6 z-[99999]">
+        <button 
+          onClick={() => { playSelect(); setMobileMenuOpen(true); }}
+          className="bg-[#0a0a0c]/80 backdrop-blur-md border border-[#C8A96E]/50 rounded-md flex flex-col gap-1.5 justify-center items-center"
+          style={{ width: '48px', height: '48px' }}
+        >
+          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
+          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
+          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 pointer-events-none flex" style={{ zIndex: 99999 }}>
+    <div className="fixed inset-0 pointer-events-none flex" style={{ zIndex: 99999, backgroundColor: isMobile && currentSection !== 'menu' ? 'rgba(5,5,5,0.95)' : 'transparent' }}>
       <motion.div
         className="absolute pointer-events-auto flex flex-col"
         initial={false}
-        animate={{
+        animate={isMobile ? {
+          left: '24px',
+          top: 'auto',
+          bottom: '24px',
+          x: '0%',
+          y: '0%',
+        } : {
           left: '48px',
           top: 'auto',
           bottom: '60px',
@@ -302,8 +337,16 @@ export default function MainMenu() {
           y: '0%',
         }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: 'clamp(260px, 28vw, 380px)', zIndex: 99999, opacity: 1 }}
+        style={{ width: isMobile ? 'calc(100vw - 48px)' : 'clamp(260px, 28vw, 380px)', zIndex: 99999, opacity: 1 }}
       >
+        {isMobile && currentSection !== 'menu' && (
+          <button 
+             className="absolute -top-16 right-0 text-[#E8C98E] font-['Cinzel'] tracking-widest text-sm bg-transparent border border-[#E8C98E]/50 px-4 py-2 rounded"
+             onClick={() => { playSelect(); setMobileMenuOpen(false); }}
+          >
+            ✕ CLOSE
+          </button>
+        )}
         <motion.nav
           className="relative"
           initial={{ opacity: 0 }}
@@ -349,7 +392,7 @@ export default function MainMenu() {
                     <span
                       style={{
                         display: 'block',
-                        fontSize: isActive ? '1.55rem' : '1.35rem',
+                        fontSize: isActive ? (isMobile ? '1.25rem' : '1.55rem') : (isMobile ? '1.05rem' : '1.35rem'),
                         fontWeight: isActive ? 400 : 300,
                         color: isActive ? '#E8C98E' : '#ffffff',
                         opacity: 1,

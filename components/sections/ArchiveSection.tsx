@@ -41,8 +41,7 @@ export default function ArchiveSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4]"
-      style={{ paddingLeft: 'clamp(280px, 30vw, 400px)' }}
+      className="fixed inset-0 z-10 flex flex-col sm:flex-row overflow-auto bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -50,7 +49,7 @@ export default function ArchiveSection() {
     >
       {/* Outer scrollable column */}
       <div
-        className="scrollable flex flex-col gap-5 w-full px-8 py-8"
+        className="scrollable flex flex-col gap-5 w-full sm:max-w-2xl px-4 py-6 sm:px-8 sm:py-8"
         style={{ overflowY: 'auto', overflowX: 'hidden' }}
       >
 
@@ -147,7 +146,7 @@ export default function ArchiveSection() {
 
             <div className="rule-gold mb-4" />
 
-            <div className="grid grid-cols-3 gap-4 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
               {[
                 ['FILED BY', 'Harry Nielsen Lagto'],
                 ['CLASSIFICATION', 'Open Access'],

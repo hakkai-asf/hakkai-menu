@@ -88,8 +88,7 @@ export default function SkillsSection() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex overflow-hidden bg-[#0a0a0c] text-[#E8E0D4]"
-      style={{ paddingLeft: 'clamp(280px, 30vw, 400px)' }}
+      className="fixed inset-0 z-10 flex flex-col md:flex-row overflow-hidden bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] pt-16 md:pt-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -97,8 +96,7 @@ export default function SkillsSection() {
     >
       {/* Category selector */}
       <motion.div
-        className="flex flex-col py-8 pl-8 pr-3 flex-shrink-0"
-        style={{ width: 'clamp(220px, 26vw, 300px)' }}
+        className="flex flex-col py-8 px-4 md:pl-8 md:pr-3 flex-shrink-0 w-full md:w-[clamp(220px,26vw,300px)]"
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -140,8 +138,7 @@ export default function SkillsSection() {
 
       {/* Skills panel */}
       <motion.div
-        className="flex-1 py-8 pr-8 overflow-y-auto scrollable"
-        style={{ paddingLeft: 24 }}
+        className="flex-1 py-8 px-4 md:pr-8 md:pl-6 overflow-y-auto scrollable"
         initial={{ x: 30, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.15 }}
