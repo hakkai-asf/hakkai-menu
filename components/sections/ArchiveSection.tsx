@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '@/lib/contexts/AudioContext';
 
@@ -14,13 +14,39 @@ const BOOT_LINES = [
   '> ACCESS GRANTED.',
 ];
 
-const CV_PATH = '/cv/HARRY LAGTO ATS CV.pdf';
+const LOCAL_CV_PATH = '/cv/HARRY%20LAGTO%20ATS%20CV.pdf';
+const DEFAULT_GOOGLE_DRIVE_CV_URL = 'https://drive.google.com/file/d/1s4r34OIo3y64V-QTmQbxQdbcfw8NxC8Z/view?usp=sharing';
+const GOOGLE_DRIVE_CV_URL = process.env.NEXT_PUBLIC_GOOGLE_DRIVE_CV_URL?.trim() || DEFAULT_GOOGLE_DRIVE_CV_URL;
+
+function getGoogleDriveFileId(url: string) {
+  return (
+    url.match(/\/file\/d\/([^/]+)/)?.[1] ||
+    url.match(/[?&]id=([^&]+)/)?.[1] ||
+    ''
+  );
+}
+
+function getGoogleDrivePreviewUrl(url: string) {
+  const fileId = getGoogleDriveFileId(url);
+
+  return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url;
+}
+
+function getGoogleDriveDownloadUrl(url: string) {
+  const fileId = getGoogleDriveFileId(url);
+
+  return fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : LOCAL_CV_PATH;
+}
 
 export default function ArchiveSection() {
   const { playHover, playConfirm, playToggle } = useAudio();
   const [lines, setLines] = useState(0);
   const [ready, setReady] = useState(false);
   const [zoom, setZoom] = useState(1.0);
+  const cvDownloadUrl = useMemo(() => getGoogleDriveDownloadUrl(GOOGLE_DRIVE_CV_URL), []);
+  const cvPreviewUrl = useMemo(() => {
+    return getGoogleDrivePreviewUrl(GOOGLE_DRIVE_CV_URL);
+  }, []);
 
   useEffect(() => {
     let i = 0;
@@ -166,7 +192,7 @@ export default function ArchiveSection() {
             {/* Action buttons */}
             <div className="flex gap-3 mb-5 flex-wrap">
               <a
-                href={CV_PATH}
+                href={cvDownloadUrl}
                 download
                 id="archive-cv"
                 className="btn-ghost"
@@ -177,7 +203,7 @@ export default function ArchiveSection() {
                 ↓ DOWNLOAD CV
               </a>
               <a
-                href={CV_PATH}
+                href={cvPreviewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-ghost"
@@ -245,7 +271,7 @@ export default function ArchiveSection() {
                 }}
               >
                 <iframe
-                  src={`${CV_PATH}#zoom=${Math.round(zoom * 100)}`}
+                  src={cvPreviewUrl}
                   title="CV Document"
                   style={{
                     width: `${Math.round(zoom * 100)}%`,
