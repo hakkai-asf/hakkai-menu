@@ -570,7 +570,7 @@ export default function ProjectsSection() {
             e.currentTarget.style.boxShadow = '0 0 0px rgba(212,212,220,0)';
           }}
         >
-          Use Item — Launch Demo
+          Launch Demo
         </a>
       </div>
     </motion.div>

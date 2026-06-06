@@ -62,25 +62,27 @@ export default function ProfileSection() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-
       {/* ── Character viewer column ── */}
       <motion.div
         className="
           w-full
-          md:w-[clamp(300px,35vw,440px)]
+          md:w-[clamp(260px,30vw,380px)]
           flex-shrink-0
           flex flex-col items-center
           justify-start md:justify-center
-          pt-4 md:pt-0
-          pb-2 md:pb-10
+          pt-2 md:pt-0
+          pb-1 md:pb-8
         "
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0,   opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {/* Character canvas */}
+        {/* Character canvas — 20% smaller: mobile 224px (was 280), desktop 384px (was 480) */}
         <div className="w-full">
-          <div className="h-[280px] md:h-[480px] w-full relative">
+          <div
+            className="w-full relative"
+            style={{ height: 'clamp(180px, 38vw, 384px)' }}
+          >
             <CharacterViewer
               mode="profile"
               rotation={rotation}
@@ -91,7 +93,7 @@ export default function ProfileSection() {
         </div>
 
         {/* Viewer controls */}
-        <div className="flex items-center gap-2 md:gap-3 mt-3">
+        <div className="flex items-center gap-1.5 md:gap-2 mt-2">
           {[
             { label: '↺', action: () => rotate(-1), tip: 'Rotate Left'  },
             { label: '↻', action: () => rotate(1),  tip: 'Rotate Right' },
@@ -105,21 +107,20 @@ export default function ProfileSection() {
               onMouseEnter={() => playHover()}
               title={tip}
               className="btn-ghost"
-              style={{ padding: '7px 12px', fontSize: '1rem', minWidth: 36 }}
+              style={{ padding: '5px 10px', fontSize: '0.9rem', minWidth: 32 }}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* "DRAG TO ROTATE" hint — bumped up from 0.5rem */}
         <p style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: '0.72rem',
+          fontSize: '0.65rem',
           fontWeight: 500,
           color: '#A8A8B0',
           letterSpacing: '0.12em',
-          marginTop: 8,
+          marginTop: 6,
         }}>
           DRAG TO ROTATE
         </p>
@@ -130,10 +131,10 @@ export default function ProfileSection() {
         className="
           flex-1 min-w-0
           overflow-visible md:overflow-y-auto scrollable
-          py-4 md:py-8
+          py-3 md:py-8
           px-4 md:pr-6 md:pl-8
-          flex flex-col gap-5 md:gap-6
-          pb-16 md:pb-8
+          flex flex-col gap-4 md:gap-6
+          pb-20 md:pb-8
         "
         initial={{ x: 30, opacity: 0 }}
         animate={{ x: 0,  opacity: 1 }}
@@ -144,15 +145,14 @@ export default function ProfileSection() {
         <div
           className="panel"
           style={{
-            padding: '20px 22px',
+            padding: '16px 18px',
             borderColor: 'rgba(168,168,176,0.2)',
             clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
           }}
         >
-          {/* Section label — bumped from 0.65rem (via .section-label) — override inline */}
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.82rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
@@ -164,34 +164,39 @@ export default function ProfileSection() {
 
           <OrnateDivider />
 
-          {/* Name */}
           <h1 style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: 'clamp(1.4rem, 4vw, 2rem)',
+            fontSize: 'clamp(1.15rem, 4vw, 2rem)',
             fontWeight: 600,
             color: '#D4D4DC',
             textTransform: 'uppercase',
             letterSpacing: '0.04em',
-            lineHeight: 1.1,
+            lineHeight: 1.15,
           }}>
             Harry Nielsen M. Lagto
           </h1>
 
-          {/* Role */}
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.95rem',
+            fontSize: '0.85rem',
             fontWeight: 400,
             color: '#A8A8B0',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            marginTop: 6,
+            marginTop: 5,
           }}>
             Aspiring Fullstack Developer
           </p>
 
-          {/* Meta info */}
-          <div className="flex flex-wrap gap-x-5 gap-y-4 mt-5">
+          {/* Meta info — 2-col grid on mobile for compactness */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '12px 16px',
+              marginTop: 14,
+            }}
+          >
             {[
               ['LOCATION',    'Metro Manila, Philippines'],
               ['STATUS',      null],
@@ -199,10 +204,9 @@ export default function ProfileSection() {
               ['INSTITUTION', 'National University'],
             ].map(([label, value]) => (
               <div key={label as string}>
-                {/* hud-label override — bigger & bolder */}
                 <div style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '0.65rem',
+                  fontSize: '0.58rem',
                   fontWeight: 700,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
@@ -212,8 +216,8 @@ export default function ProfileSection() {
                   {label}
                 </div>
                 {label === 'STATUS'
-                  ? <div className="status-available" style={{ fontSize: '0.8rem', fontWeight: 600 }}>AVAILABLE FOR WORK</div>
-                  : <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', fontWeight: 500, color: '#E8E0D4', marginTop: 2 }}>{value}</div>
+                  ? <div className="status-available" style={{ fontSize: '0.72rem', fontWeight: 600 }}>AVAILABLE FOR WORK</div>
+                  : <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', fontWeight: 500, color: '#E8E0D4', marginTop: 2 }}>{value}</div>
                 }
               </div>
             ))}
@@ -222,15 +226,14 @@ export default function ProfileSection() {
 
         {/* ── Achievements ── */}
         <div>
-          {/* Section header */}
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.82rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
             color: '#A8A8B0',
-            marginBottom: 12,
+            marginBottom: 10,
           }}>
             ACHIEVEMENTS UNLOCKED
           </p>
@@ -239,12 +242,12 @@ export default function ProfileSection() {
             {ACHIEVEMENTS.map((ach, i) => (
               <motion.div
                 key={ach.title}
-                className="achievement-badge flex items-center gap-4"
+                className="achievement-badge flex items-center gap-3"
                 style={{
                   clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
                   borderColor: 'rgba(168,168,176,0.2)',
                   background: 'rgba(10,10,12,0.6)',
-                  padding: '12px 16px',
+                  padding: '10px 14px',
                 }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -252,35 +255,32 @@ export default function ProfileSection() {
                 onMouseEnter={() => playHover()}
               >
                 <div className="min-w-0 flex-1">
-                  {/* Achievement title — bumped from 0.82rem */}
                   <p style={{
                     fontFamily: 'Cinzel, Georgia, serif',
                     fontWeight: 600,
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
                     color: '#D4D4DC',
                     letterSpacing: '0.04em',
                     textTransform: 'uppercase',
                   }}>
                     {ach.title}
                   </p>
-                  {/* Achievement desc — bumped from 0.55rem */}
                   <p style={{
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.72rem',
+                    fontSize: '0.65rem',
                     fontWeight: 500,
                     color: '#C0C0C8',
-                    marginTop: 3,
+                    marginTop: 2,
                     letterSpacing: '0.03em',
                   }}>
                     {ach.desc}
                   </p>
                 </div>
-                {/* "UNLOCKED" badge — bumped from 0.5rem */}
                 <span
                   className="ml-auto flex-shrink-0"
                   style={{
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.65rem',
+                    fontSize: '0.58rem',
                     fontWeight: 600,
                     color: '#A8A8B0',
                     letterSpacing: '0.12em',
@@ -298,17 +298,24 @@ export default function ProfileSection() {
         <div>
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.82rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
             color: '#A8A8B0',
-            marginBottom: 12,
+            marginBottom: 10,
           }}>
             EQUIPPED TECHNOLOGIES
           </p>
 
-          <div className="flex flex-wrap gap-2">
+          {/* 3-col grid on mobile so chips don't stretch awkwardly */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: 8,
+            }}
+          >
             {STACK.map((tech, i) => (
               <motion.div
                 key={tech.name}
@@ -319,30 +326,29 @@ export default function ProfileSection() {
                 style={{
                   background: 'rgba(168,168,176,0.06)',
                   border: '1px solid rgba(168,168,176,0.2)',
-                  padding: '10px 14px',
+                  padding: '9px 12px',
                   clipPath: 'polygon(6px 0%,100% 0%,100% calc(100% - 6px),calc(100% - 6px) 100%,0% 100%,0% 6px)',
                 }}
                 onMouseEnter={() => playHover()}
               >
-                {/* Tech name — bumped from 0.78rem */}
                 <span style={{
                   fontFamily: 'Cinzel, Georgia, serif',
                   fontWeight: 600,
-                  fontSize: '0.9rem',
+                  fontSize: '0.75rem',
                   color: '#D4D4DC',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
+                  letterSpacing: '0.03em',
+                  lineHeight: 1.2,
                 }}>
                   {tech.name}
                 </span>
-                {/* Category — bumped from 0.5rem */}
                 <span style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '0.68rem',
+                  fontSize: '0.58rem',
                   fontWeight: 500,
                   color: '#8A8A94',
-                  letterSpacing: '0.06em',
-                  marginTop: 2,
+                  letterSpacing: '0.05em',
+                  marginTop: 3,
                 }}>
                   {tech.category}
                 </span>
@@ -355,12 +361,12 @@ export default function ProfileSection() {
         <div>
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.82rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
             color: '#A8A8B0',
-            marginBottom: 12,
+            marginBottom: 10,
           }}>
             DEVELOPMENT GEAR
           </p>
@@ -371,7 +377,7 @@ export default function ProfileSection() {
                 key={tool.name}
                 className="flex items-center gap-3 panel"
                 style={{
-                  padding: '12px 14px',
+                  padding: '10px 13px',
                   borderColor: 'rgba(168,168,176,0.2)',
                   clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
                 }}
@@ -380,14 +386,14 @@ export default function ProfileSection() {
                 transition={{ duration: 0.3, delay: 0.5 + i * 0.06 }}
                 onMouseEnter={() => playHover()}
               >
-                {/* Tool name — bumped from 0.75rem */}
                 <span style={{
                   fontFamily: 'Cinzel, Georgia, serif',
                   fontWeight: 600,
-                  fontSize: '0.88rem',
+                  fontSize: '0.78rem',
                   color: '#D4D4DC',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
+                  letterSpacing: '0.03em',
+                  lineHeight: 1.2,
                 }}>
                   {tool.name}
                 </span>
@@ -400,12 +406,12 @@ export default function ProfileSection() {
         <div className="pb-4 md:pb-8">
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.82rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.25em',
             textTransform: 'uppercase',
             color: '#A8A8B0',
-            marginBottom: 12,
+            marginBottom: 10,
           }}>
             LANGUAGE PROFICIENCY
           </p>
@@ -419,21 +425,19 @@ export default function ProfileSection() {
                 transition={{ delay: 0.6 + i * 0.1 }}
               >
                 <div className="flex justify-between items-center py-3 border-b border-[#A8A8B0]/10">
-                  {/* Language name — bumped from 0.85rem */}
                   <span style={{
                     fontFamily: 'Cinzel, Georgia, serif',
                     fontWeight: 600,
-                    fontSize: '1rem',
+                    fontSize: '0.9rem',
                     color: '#D4D4DC',
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                   }}>
                     {lang.lang}
                   </span>
-                  {/* Level — bumped from 0.75rem */}
                   <span style={{
                     fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.82rem',
+                    fontSize: '0.75rem',
                     fontWeight: 600,
                     color: '#A8A8B0',
                     letterSpacing: '0.08em',

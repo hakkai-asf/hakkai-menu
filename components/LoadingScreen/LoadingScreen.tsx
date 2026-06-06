@@ -12,7 +12,6 @@ const STATUS_MESSAGES = [
   'Entering the Lands Between...',
 ];
 
-// ── shared clip paths (verbatim from ProjectsSection) ──────────────────────
 const clip4 = 'polygon(4px 0%,100% 0%,100% calc(100% - 4px),calc(100% - 4px) 100%,0% 100%,0% 4px)';
 const clip6 = 'polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px)';
 
@@ -82,7 +81,6 @@ const LOADING_ITEMS = [
   }
 ];
 
-// ── EldenSymbol — strokes converted to silver ──────────────────────────────
 function EldenSymbol() {
   return (
     <svg viewBox="0 0 100 120" style={{ stroke: '#A8A8B8', fill: 'none', strokeWidth: 0.8, width: '100%', height: '100%' }}>
@@ -100,7 +98,6 @@ function EldenSymbol() {
   );
 }
 
-// ── OrnateDivider (verbatim from ProjectsSection) ──────────────────────────
 function OrnateDivider() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '12px 0' }}>
@@ -121,6 +118,14 @@ export default function LoadingScreen() {
   const [progress, setProgress]         = useState(0);
   const [statusIdx, setStatusIdx]       = useState(0);
   const [selectedItem, setSelectedItem] = useState<(typeof LOADING_ITEMS)[0] | null>(null);
+  const [isMobile, setIsMobile]         = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     const idx = Math.floor(Math.random() * LOADING_ITEMS.length);
@@ -150,13 +155,32 @@ export default function LoadingScreen() {
     return () => clearInterval(interval);
   }, [setIsLoading, setIsGameStarted]);
 
+  // ── responsive values ──────────────────────────────────────────────────────
+  // On mobile we keep the exact same layout but scale everything down so
+  // the two-column card fits within a narrow viewport.
+  const px          = isMobile ? '5vw'  : '8vw';
+  const py          = isMobile ? '5vh'  : '8vh';
+  const nameSize    = isMobile ? '0.9rem'  : '1.35rem';
+  const loreSize    = isMobile ? '0.72rem' : '0.85rem';
+  const typeSize    = isMobile ? '0.62rem' : '0.7rem';
+  const svgBoxSize  = isMobile ? 80       : 130;
+  const svgGap      = isMobile ? 20       : 48;
+  const svgScale    = isMobile ? 0.72     : 1;   // scale inner SVG via wrapper
+  const statusSize  = isMobile ? '0.72rem' : '0.85rem';
+  const percentSize = isMobile ? '0.95rem' : '1.2rem';
+  const headerSize  = isMobile ? '0.55rem' : '0.65rem';
+  const subSize     = isMobile ? '0.48rem' : '0.55rem';
+  const emblemSize  = isMobile ? 40       : 56;
+
   return (
     <motion.div
       style={{
         position: 'fixed', inset: 0, zIndex: 9999,
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         background: 'radial-gradient(circle at 75% 75%, rgba(168,168,176,0.05) 0%, #050505 70%, #030303 100%)',
-        padding: '8vh 8vw',
+        padding: `${py} ${px}`,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -174,7 +198,7 @@ export default function LoadingScreen() {
           display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
           width: '100%',
           borderBottom: '1px solid rgba(168,168,176,0.15)',
-          paddingBottom: 16,
+          paddingBottom: isMobile ? 10 : 16,
           position: 'relative', zIndex: 1,
         }}
         initial={{ opacity: 0, y: -10 }}
@@ -184,43 +208,56 @@ export default function LoadingScreen() {
         <div>
           <h2 style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.65rem',
+            fontSize: headerSize,
             letterSpacing: '0.35em',
             color: '#D4D4DC',
             textTransform: 'uppercase',
+            margin: 0,
           }}>Harry Nielsen M. Lagto</h2>
           <p style={{
             fontFamily: 'Cinzel, Georgia, serif',
-            fontSize: '0.55rem',
+            fontSize: subSize,
             letterSpacing: '0.2em',
             color: '#7A7A84',
             marginTop: 2,
+            marginBottom: 0,
           }}>LANDS BETWEEN WEB DEVELOPMENT</p>
         </div>
 
-        {/* BUILD badge — same style as ProjectsSection rarity chip */}
         <span style={{
           fontFamily: 'JetBrains Mono, monospace',
-          fontSize: '0.6rem',
+          fontSize: isMobile ? '0.52rem' : '0.6rem',
           fontWeight: 700,
           color: '#9A9AA4',
           border: '1px solid rgba(168,168,176,0.25)',
           clipPath: clip4,
-          padding: '3px 10px',
+          padding: isMobile ? '2px 7px' : '3px 10px',
           letterSpacing: '0.08em',
+          flexShrink: 0,
+          alignSelf: 'flex-start',
         }}>BUILD v1.0.0</span>
       </motion.div>
 
       {/* ── MIDDLE: ITEM LORE CARD ── */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '24px 0', position: 'relative', zIndex: 1 }}>
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: isMobile ? '16px 0' : '24px 0',
+        position: 'relative', zIndex: 1,
+        minHeight: 0, // allow shrinking
+      }}>
         <AnimatePresence mode="wait">
           {selectedItem && (
             <motion.div
               style={{
                 display: 'flex',
+                // Keep row layout on all screen sizes — same as desktop.
+                // On mobile the SVG box shrinks and text scales down so it fits.
                 flexDirection: 'row',
                 alignItems: 'flex-start',
-                gap: 48,
+                gap: svgGap,
                 maxWidth: 720,
                 width: '100%',
               }}
@@ -228,53 +265,63 @@ export default function LoadingScreen() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
             >
-              {/* Item SVG Frame — matches ProjectsSection panel style */}
+              {/* Item SVG Frame */}
               <div style={{
-                width: 130, height: 130, flexShrink: 0,
+                width: svgBoxSize,
+                height: svgBoxSize,
+                flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 background: 'rgba(6,6,8,0.92)',
                 border: '1px solid rgba(168,168,176,0.18)',
                 clipPath: clip6,
                 boxShadow: 'inset 0 0 18px rgba(168,168,176,0.04)',
               }}>
-                {selectedItem.svg}
+                {/* Scale the SVG element itself on mobile */}
+                <div style={{ transform: `scale(${svgScale})`, transformOrigin: 'center' }}>
+                  {selectedItem.svg}
+                </div>
               </div>
 
               {/* Item Lore Info */}
-              <div style={{ flex: 1 }}>
-                {/* name */}
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <h3 style={{
                   fontFamily: 'Cinzel, Georgia, serif',
-                  fontSize: '1.35rem',
+                  fontSize: nameSize,
                   fontWeight: 900,
-                  letterSpacing: '0.15em',
+                  letterSpacing: isMobile ? '0.08em' : '0.15em',
                   color: '#D4D4DC',
                   textTransform: 'uppercase',
+                  margin: 0,
+                  // allow long names to wrap rather than overflow
+                  wordBreak: 'break-word',
                 }}>{selectedItem.name}</h3>
 
-                {/* type — italic sub-label matching ProjectsSection lore quote style */}
                 <p style={{
                   fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '0.7rem',
+                  fontSize: typeSize,
                   color: '#7A7A84',
                   fontStyle: 'italic',
                   marginTop: 4,
+                  marginBottom: 0,
                   letterSpacing: '0.05em',
                 }}>{selectedItem.type}</p>
 
                 <OrnateDivider />
 
-                {/* lore — borderLeft like ProjectsSection's lore quote */}
                 <p style={{
                   fontFamily: 'Georgia, serif',
-                  fontSize: '0.85rem',
+                  fontSize: loreSize,
                   color: '#C8C8D0',
                   lineHeight: 1.7,
                   letterSpacing: '0.01em',
                   whiteSpace: 'pre-line',
                   borderLeft: '2px solid rgba(168,168,176,0.25)',
-                  paddingLeft: 14,
+                  paddingLeft: isMobile ? 10 : 14,
                   opacity: 0.9,
+                  margin: 0,
+                  // clamp lore height on tiny screens so it doesn't push the progress bar off
+                  maxHeight: isMobile ? '28vh' : 'none',
+                  overflow: 'hidden',
                 }}>{selectedItem.lore}</p>
               </div>
             </motion.div>
@@ -284,12 +331,17 @@ export default function LoadingScreen() {
 
       {/* ── BOTTOM: LOADING BAR + EMBLEM ── */}
       <motion.div
-        style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 20, position: 'relative', zIndex: 1 }}
+        style={{
+          width: '100%',
+          display: 'flex', flexDirection: 'column',
+          gap: isMobile ? 12 : 20,
+          position: 'relative', zIndex: 1,
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.0, delay: 0.4 }}
       >
-        {/* progress bar track — silver */}
+        {/* progress bar */}
         <div style={{
           width: '100%', height: 2,
           background: 'rgba(168,168,176,0.12)',
@@ -307,11 +359,11 @@ export default function LoadingScreen() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          {/* Status message */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {/* Status */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0, flex: 1 }}>
             <span style={{
               fontFamily: 'Cinzel, Georgia, serif',
-              fontSize: '0.55rem',
+              fontSize: isMobile ? '0.45rem' : '0.55rem',
               color: '#7A7A84',
               letterSpacing: '0.25em',
               textTransform: 'uppercase',
@@ -325,28 +377,31 @@ export default function LoadingScreen() {
                 transition={{ duration: 0.25 }}
                 style={{
                   fontFamily: 'Cinzel, Georgia, serif',
-                  fontSize: '0.85rem',
+                  fontSize: statusSize,
                   fontWeight: 700,
                   color: '#C8C8D0',
-                  letterSpacing: '0.08em',
+                  letterSpacing: isMobile ? '0.04em' : '0.08em',
+                  margin: 0,
+                  // allow wrapping on tiny screens
+                  whiteSpace: isMobile ? 'normal' : 'nowrap',
                 }}
               >{STATUS_MESSAGES[statusIdx]}</motion.p>
             </AnimatePresence>
           </div>
 
-          {/* % + spinning emblem */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          {/* % + emblem */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 20, flexShrink: 0, marginLeft: 12 }}>
             <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
               <span style={{
                 fontFamily: 'Cinzel, Georgia, serif',
-                fontSize: '0.55rem',
+                fontSize: isMobile ? '0.45rem' : '0.55rem',
                 color: '#7A7A84',
                 letterSpacing: '0.25em',
                 textTransform: 'uppercase',
               }}>RUNE POWER</span>
               <span style={{
                 fontFamily: 'Cinzel, Georgia, serif',
-                fontSize: '1.2rem',
+                fontSize: percentSize,
                 fontWeight: 700,
                 color: '#D4D4DC',
                 letterSpacing: '0.05em',
@@ -354,7 +409,7 @@ export default function LoadingScreen() {
             </div>
 
             <motion.div
-              style={{ width: 56, height: 56 }}
+              style={{ width: emblemSize, height: emblemSize, flexShrink: 0 }}
               animate={{ rotate: 360, opacity: [0.7, 1.0, 0.7] }}
               transition={{
                 rotate:  { duration: 15, ease: 'linear', repeat: Infinity },

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '@/lib/contexts/GameContext';
 import { useAudio } from '@/lib/contexts/AudioContext';
@@ -33,10 +33,21 @@ function OrnateDivider() {
   );
 }
 
-function SettingRow({ label, sub, children }: { label: string; sub?: string; children: React.ReactNode }) {
+// ── Responsive SettingRow ──────────────────────────────────────────────────
+// On mobile (isMobile=true) the row stacks: label on top, control below.
+// On desktop it stays side-by-side.
+function SettingRow({
+  label, sub, children, stacked = false,
+}: {
+  label: string; sub?: string; children: React.ReactNode; stacked?: boolean;
+}) {
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      display: 'flex',
+      flexDirection: stacked ? 'column' : 'row',
+      alignItems: stacked ? 'flex-start' : 'center',
+      justifyContent: stacked ? 'flex-start' : 'space-between',
+      gap: stacked ? 10 : 0,
       padding: '12px 0',
       borderBottom: '1px solid rgba(168,168,176,0.07)',
     }}>
@@ -53,7 +64,12 @@ function SettingRow({ label, sub, children }: { label: string; sub?: string; chi
           }}>{sub}</p>
         )}
       </div>
-      <div style={{ minWidth: 160, display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: stacked ? 'flex-start' : 'flex-end',
+        minWidth: stacked ? 0 : 160,
+        width: stacked ? '100%' : 'auto',
+      }}>
         {children}
       </div>
     </div>
@@ -63,10 +79,10 @@ function SettingRow({ label, sub, children }: { label: string; sub?: string; chi
 function VolumeSlider({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   const { playHover } = useAudio();
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 220 }}>
       <span style={{
         fontFamily: 'JetBrains Mono, monospace',
-        fontSize: '0.78rem', fontWeight: 700, color: '#C8C8D0', width: 32, textAlign: 'right',
+        fontSize: '0.78rem', fontWeight: 700, color: '#C8C8D0', width: 32, textAlign: 'right', flexShrink: 0,
       }}>
         {Math.round(value * 100)}
       </span>
@@ -76,7 +92,7 @@ function VolumeSlider({ value, onChange, label }: { value: number; onChange: (v:
         onChange={e => onChange(parseFloat(e.target.value))}
         onMouseEnter={() => playHover()}
         aria-label={label}
-        style={{ width: 120, accentColor: '#A8A8B8', cursor: 'pointer' }}
+        style={{ flex: 1, accentColor: '#A8A8B8', cursor: 'pointer', minWidth: 0 }}
       />
     </div>
   );
@@ -92,12 +108,13 @@ function SegBtn({ active, onClick, onHover, children }: {
       style={{
         fontFamily: 'Cinzel, Georgia, serif', fontWeight: 700, fontSize: '0.8rem',
         letterSpacing: '0.06em', textTransform: 'uppercase',
-        padding: '5px 14px', cursor: 'pointer', border: 'none',
+        padding: '7px 16px', cursor: 'pointer', border: 'none',
         clipPath: clip4,
         background: active ? 'rgba(168,168,176,0.18)' : 'rgba(25,25,30,0.4)',
         color: active ? '#D4D4DC' : '#5A5A6E',
         borderLeft: `2px solid ${active ? '#A8A8B8' : 'transparent'}`,
         transition: 'all 0.15s',
+        whiteSpace: 'nowrap',
       }}
     >
       {children}
@@ -133,6 +150,14 @@ function PanelCard({ children, delay = 0, heading }: {
 export default function SettingsSection() {
   const { settings, updateSetting } = useGame();
   const { playHover, playToggle, fadeBGM } = useAudio();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   return (
     <motion.div
@@ -166,17 +191,20 @@ export default function SettingsSection() {
 
           {/* ── AUDIO ── */}
           <PanelCard heading="Audio" delay={0.1}>
-            <SettingRow label="Master Volume" sub="Controls all audio output">
+            {/* Volume rows: stacked on mobile so slider doesn't collide with label */}
+            <SettingRow label="Master Volume" sub="Controls all audio output" stacked={isMobile}>
               <VolumeSlider label="Master Volume" value={settings.masterVolume} onChange={v => updateSetting('masterVolume', v)} />
             </SettingRow>
-            <SettingRow label="Music Volume" sub="Background music level">
+            <SettingRow label="Music Volume" sub="Background music level" stacked={isMobile}>
               <VolumeSlider label="Music Volume" value={settings.musicVolume} onChange={v => updateSetting('musicVolume', v)} />
             </SettingRow>
-            <SettingRow label="Effects Volume" sub="UI interaction sounds">
+            <SettingRow label="Effects Volume" sub="UI interaction sounds" stacked={isMobile}>
               <VolumeSlider label="Effects Volume" value={settings.sfxVolume} onChange={v => updateSetting('sfxVolume', v)} />
             </SettingRow>
-            <SettingRow label="BGM Track" sub="Select background music">
-              <div style={{ display: 'flex', gap: 6 }}>
+
+            {/* BGM Track: always stacked so buttons never overlap label */}
+            <SettingRow label="BGM Track" sub="Select background music" stacked>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {TRACKS.map(t => (
                   <SegBtn
                     key={t.id}
@@ -233,12 +261,19 @@ export default function SettingsSection() {
               padding: '14px 24px 10px',
               background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168,168,176,0.07) 0%, transparent 70%)',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{
+                display: 'flex',
+                alignItems: isMobile ? 'flex-start' : 'center',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                gap: isMobile ? 8 : 0,
+                marginBottom: 6,
+              }}>
                 <p style={{
                   fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900, fontSize: '0.88rem',
                   color: '#D4D4DC', textTransform: 'uppercase', letterSpacing: '0.1em',
                 }}>◈ Developer Information</p>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <span style={{
                     fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 700,
                     color: '#9A9AA4', border: '1px solid rgba(168,168,176,0.25)',
@@ -259,7 +294,12 @@ export default function SettingsSection() {
 
             <OrnateDivider />
 
-            <div style={{ padding: '6px 24px 18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 24px' }}>
+            <div style={{
+              padding: '6px 24px 18px',
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: '14px 24px',
+            }}>
               {[
                 ['DEVELOPER',     'Harry Nielsen M. Lagto'],
                 ['FRAMEWORK',     'Next.js 14 + Three.js'],

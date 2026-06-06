@@ -365,7 +365,7 @@ export default function ContactSection() {
           (e.currentTarget as HTMLElement).style.boxShadow  = 'none';
         }}
       >
-        ↓ Download
+        Download
       </a>
     </div>
   );

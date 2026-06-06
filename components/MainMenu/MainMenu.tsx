@@ -113,8 +113,8 @@ export default function MainMenu() {
   if (isTitleScreen) {
     return (
       <div
-        className="fixed inset-0 flex flex-col items-center justify-between pointer-events-auto"
-        style={{ background: '#050505', padding: '12vh 0 10vh', zIndex: 99999 }}
+        className="fixed inset-0 flex flex-col items-center justify-center pointer-events-auto"
+        style={{ background: '#050505', zIndex: 99999, overflow: 'hidden' }}
       >
         {/* Rune emblem background */}
         <motion.div
@@ -140,7 +140,7 @@ export default function MainMenu() {
           pointerEvents: 'none',
         }} />
 
-        {/* ── TITLE BLOCK: Logo + Title ── */}
+        {/* ── SINGLE CENTERED COLUMN: Logo + Title + Divider + Menu ── */}
         <motion.div
           className="relative z-10 flex flex-col items-center w-full px-8"
           style={{ maxWidth: '100vw', textAlign: 'center' }}
@@ -153,9 +153,8 @@ export default function MainMenu() {
             initial={{ opacity: 0, scale: 0.8, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1.8, ease: 'easeOut', delay: 0.6 }}
-            style={{ marginBottom: '1.4rem', position: 'relative' }}
+            style={{ marginBottom: '1rem', position: 'relative' }}
           >
-            {/* subtle glow behind logo */}
             <div style={{
               position: 'absolute', top: '50%', left: '50%',
               transform: 'translate(-50%, -50%)',
@@ -170,7 +169,7 @@ export default function MainMenu() {
               width={140}
               height={140}
               style={{
-                width: 'clamp(90px, 12vw, 140px)',
+                width: 'clamp(72px, 10vw, 120px)',
                 height: 'auto',
                 filter: 'drop-shadow(0 0 18px rgba(212,212,220,0.35)) drop-shadow(0 0 40px rgba(168,168,176,0.15))',
                 position: 'relative',
@@ -183,7 +182,7 @@ export default function MainMenu() {
           {/* Portfolio title */}
           <h1 style={{
             fontFamily: '"Cinzel Decorative", "Cinzel", "Rajdhani", serif',
-            fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
+            fontSize: 'clamp(1.6rem, 5vw, 4.5rem)',
             fontWeight: 700,
             letterSpacing: '0.12em',
             color: '#D4D4DC',
@@ -193,93 +192,102 @@ export default function MainMenu() {
             wordBreak: 'break-word',
             overflowWrap: 'break-word',
             maxWidth: '90vw',
+            margin: 0,
           }}>
             Harry&apos;s Portfolio
           </h1>
 
+          {/* Divider */}
           <motion.div
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 1.6, delay: 1.2, ease: 'easeOut' }}
             style={{
-              marginTop: '1.2rem', height: '1px',
-              width: 'clamp(160px, 35vw, 440px)',
+              marginTop: '1rem',
+              marginBottom: '0',
+              height: '1px',
+              width: 'clamp(140px, 35vw, 440px)',
               background: 'linear-gradient(90deg, transparent, #A8A8B0 30%, #A8A8B0 70%, transparent)',
             }}
           />
-        </motion.div>
 
-        {/* Bottom title menu */}
-        <motion.div
-          className="absolute flex flex-col items-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.6, delay: 1.0, ease: 'easeOut' }}
-          style={{ bottom: '8vh' }}
-        >
-          <ul className="flex flex-col items-center gap-3 select-none" style={{ listStyle: 'none', padding: 0 }}>
-            {TITLE_MENU_ITEMS.map((item, index) => {
-              const isItemHovered = hoveredItem === `title-${index}`;
-              return (
-                <li key={index} style={{ position: 'relative' }}>
-                  <motion.button
-                    className="bg-transparent border-0 outline-none cursor-pointer flex items-center justify-center gap-3"
-                    onClick={() => handleTitleMenuSelect(item.id)}
-                    onMouseEnter={() => { setHoveredItem(`title-${index}`); playHover(); }}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    whileHover={{ scale: 1.03 }}
-                    transition={{ duration: 0.15 }}
-                    style={{
-                      padding: '6px 20px',
-                      fontFamily: '"Cinzel", "Georgia", serif',
-                      fontSize: '1.05rem',
-                      fontWeight: isItemHovered ? 400 : 300,
-                      letterSpacing: '0.22em',
-                      color: isItemHovered ? '#E0E0E8' : '#A8A8B0',
-                      textTransform: 'uppercase',
-                      transition: 'color 0.18s ease, font-weight 0.18s ease',
-                      textShadow: isItemHovered ? '0 0 15px rgba(220,220,228,0.5)' : 'none',
-                    }}
-                  >
-                    <span style={{
-                      position: 'absolute', left: '-24px',
-                      color: '#D4D4DC', fontSize: '0.75rem',
-                      opacity: isItemHovered ? 1 : 0,
-                      transition: 'opacity 0.18s ease, transform 0.18s ease',
-                      transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
-                      textShadow: '0 0 10px rgba(212,212,220,0.7)',
-                    }}>◈</span>
-                    {item.label}
-                    <span style={{
-                      position: 'absolute', right: '-24px',
-                      color: '#D4D4DC', fontSize: '0.75rem',
-                      opacity: isItemHovered ? 1 : 0,
-                      transition: 'opacity 0.18s ease, transform 0.18s ease',
-                      transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
-                      textShadow: '0 0 10px rgba(212,212,220,0.7)',
-                    }}>◈</span>
-                  </motion.button>
-                </li>
-              );
-            })}
-          </ul>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.35 }}
-            transition={{ duration: 1.5, delay: 2.2 }}
-            style={{
-              marginTop: '1.5rem',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontSize: '0.5rem',
-              letterSpacing: '0.18em',
-              color: '#A8A8B0',
-              textTransform: 'uppercase',
-            }}
+          {/* Menu items — directly below divider, no absolute positioning */}
+          <motion.div
+            className="flex flex-col items-center"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.6, delay: 1.0, ease: 'easeOut' }}
+            style={{ marginTop: 'clamp(1.6rem, 4vh, 3rem)' }}
           >
-            © 2026 Harry Nielsen M. Lagto — Metro Manila, PH
-          </motion.p>
+            <ul className="flex flex-col items-center gap-2 select-none" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {TITLE_MENU_ITEMS.map((item, index) => {
+                const isItemHovered = hoveredItem === `title-${index}`;
+                return (
+                  <li key={index} style={{ position: 'relative' }}>
+                    <motion.button
+                      className="bg-transparent border-0 outline-none cursor-pointer flex items-center justify-center gap-3"
+                      onClick={() => handleTitleMenuSelect(item.id)}
+                      onMouseEnter={() => { setHoveredItem(`title-${index}`); playHover(); }}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      whileHover={{ scale: 1.03 }}
+                      transition={{ duration: 0.15 }}
+                      style={{
+                        padding: '5px 20px',
+                        fontFamily: '"Cinzel", "Georgia", serif',
+                        fontSize: 'clamp(0.85rem, 2.5vw, 1.05rem)',
+                        fontWeight: isItemHovered ? 400 : 300,
+                        letterSpacing: '0.22em',
+                        color: isItemHovered ? '#E0E0E8' : '#A8A8B0',
+                        textTransform: 'uppercase',
+                        transition: 'color 0.18s ease, font-weight 0.18s ease',
+                        textShadow: isItemHovered ? '0 0 15px rgba(220,220,228,0.5)' : 'none',
+                        position: 'relative',
+                      }}
+                    >
+                      <span style={{
+                        position: 'absolute', left: '-24px',
+                        color: '#D4D4DC', fontSize: '0.75rem',
+                        opacity: isItemHovered ? 1 : 0,
+                        transition: 'opacity 0.18s ease, transform 0.18s ease',
+                        transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
+                        textShadow: '0 0 10px rgba(212,212,220,0.7)',
+                      }}>◈</span>
+                      {item.label}
+                      <span style={{
+                        position: 'absolute', right: '-24px',
+                        color: '#D4D4DC', fontSize: '0.75rem',
+                        opacity: isItemHovered ? 1 : 0,
+                        transition: 'opacity 0.18s ease, transform 0.18s ease',
+                        transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
+                        textShadow: '0 0 10px rgba(212,212,220,0.7)',
+                      }}>◈</span>
+                    </motion.button>
+                  </li>
+                );
+              })}
+            </ul>
+          </motion.div>
         </motion.div>
+
+        {/* Copyright — always pinned to bottom */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.35 }}
+          transition={{ duration: 1.5, delay: 2.2 }}
+          style={{
+            position: 'absolute',
+            bottom: 'clamp(12px, 3vh, 28px)',
+            left: 0, right: 0,
+            textAlign: 'center',
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: '0.5rem',
+            letterSpacing: '0.18em',
+            color: '#A8A8B0',
+            textTransform: 'uppercase',
+          }}
+        >
+          © 2026 Harry Nielsen M. Lagto — Metro Manila, PH
+        </motion.p>
       </div>
     );
   }
