@@ -11,21 +11,14 @@ const LANGUAGES = [
   { id: 'japanese', label: 'Japanese' },
 ];
 
-const THEMES = [
-  { id: 'dark',      label: 'DARK MODE', desc: 'Default tactical theme' },
-  { id: 'dark-teal', label: 'TEAL OPS',  desc: 'Teal accent variant'   },
-];
-
 const TRACKS = [
   { id: 'cinematic',    label: 'Cinematic'    },
   { id: 'dark fantasy', label: 'Dark Fantasy' },
 ];
 
-// ── shared clip paths (verbatim from ProjectsSection) ──────────────────────
 const clip4 = 'polygon(4px 0%,100% 0%,100% calc(100% - 4px),calc(100% - 4px) 100%,0% 100%,0% 4px)';
 const clip6 = 'polygon(6px 0%,calc(100% - 6px) 0%,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0% calc(100% - 6px),0% 6px)';
 
-// ── OrnateDivider (verbatim from ProjectsSection) ──────────────────────────
 function OrnateDivider() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '10px 0' }}>
@@ -40,32 +33,23 @@ function OrnateDivider() {
   );
 }
 
-// ── SettingRow ─────────────────────────────────────────────────────────────
 function SettingRow({ label, sub, children }: { label: string; sub?: string; children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '12px 0',
-        borderBottom: '1px solid rgba(168,168,176,0.07)',
-      }}
-    >
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '12px 0',
+      borderBottom: '1px solid rgba(168,168,176,0.07)',
+    }}>
       <div>
         <p style={{
           fontFamily: 'Cinzel, Georgia, serif',
-          fontWeight: 800,
-          fontSize: '1rem',
-          color: '#D4D4DC',
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
+          fontWeight: 800, fontSize: '1rem',
+          color: '#D4D4DC', textTransform: 'uppercase', letterSpacing: '0.06em',
         }}>{label}</p>
         {sub && (
           <p style={{
             fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '0.68rem',
-            color: '#7A7A84',
-            marginTop: 2,
-            letterSpacing: '0.05em',
+            fontSize: '0.68rem', color: '#7A7A84', marginTop: 2, letterSpacing: '0.05em',
           }}>{sub}</p>
         )}
       </div>
@@ -76,18 +60,13 @@ function SettingRow({ label, sub, children }: { label: string; sub?: string; chi
   );
 }
 
-// ── VolumeSlider ───────────────────────────────────────────────────────────
 function VolumeSlider({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   const { playHover } = useAudio();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <span style={{
         fontFamily: 'JetBrains Mono, monospace',
-        fontSize: '0.78rem',
-        fontWeight: 700,
-        color: '#C8C8D0',
-        width: 32,
-        textAlign: 'right',
+        fontSize: '0.78rem', fontWeight: 700, color: '#C8C8D0', width: 32, textAlign: 'right',
       }}>
         {Math.round(value * 100)}
       </span>
@@ -97,58 +76,37 @@ function VolumeSlider({ value, onChange, label }: { value: number; onChange: (v:
         onChange={e => onChange(parseFloat(e.target.value))}
         onMouseEnter={() => playHover()}
         aria-label={label}
-        style={{
-          width: 120,
-          accentColor: '#A8A8B8',
-          cursor: 'pointer',
-        }}
+        style={{ width: 120, accentColor: '#A8A8B8', cursor: 'pointer' }}
       />
     </div>
   );
 }
 
-// ── Toggle ─────────────────────────────────────────────────────────────────
-function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
-  const { playToggle } = useAudio();
+function SegBtn({ active, onClick, onHover, children }: {
+  active: boolean; onClick: () => void; onHover: () => void; children: React.ReactNode;
+}) {
   return (
     <button
-      onClick={() => { onChange(!value); playToggle(); }}
-      role="switch"
-      aria-checked={value}
+      onClick={onClick}
+      onMouseEnter={onHover}
       style={{
-        width: 44, height: 22, borderRadius: 11,
-        background: value ? 'rgba(168,168,176,0.25)' : 'rgba(10,10,12,0.6)',
-        border: `1px solid ${value ? '#A8A8B8' : 'rgba(168,168,176,0.2)'}`,
-        position: 'relative', cursor: 'pointer',
-        transition: 'all 0.2s', flexShrink: 0,
-        boxShadow: value ? '0 0 8px rgba(200,200,255,0.15)' : 'none',
+        fontFamily: 'Cinzel, Georgia, serif', fontWeight: 700, fontSize: '0.8rem',
+        letterSpacing: '0.06em', textTransform: 'uppercase',
+        padding: '5px 14px', cursor: 'pointer', border: 'none',
+        clipPath: clip4,
+        background: active ? 'rgba(168,168,176,0.18)' : 'rgba(25,25,30,0.4)',
+        color: active ? '#D4D4DC' : '#5A5A6E',
+        borderLeft: `2px solid ${active ? '#A8A8B8' : 'transparent'}`,
+        transition: 'all 0.15s',
       }}
     >
-      <div style={{
-        position: 'absolute', top: 3,
-        left: value ? 24 : 4,
-        width: 14, height: 14, borderRadius: '50%',
-        background: value
-          ? 'linear-gradient(135deg, #F0F0FF, #C0C0D8)'
-          : 'rgba(168,168,176,0.3)',
-        boxShadow: value ? '0 0 8px rgba(200,200,255,0.55)' : 'none',
-        transition: 'all 0.2s',
-      }} />
+      {children}
     </button>
   );
 }
 
-// ── PanelCard (matches ProjectsSection panel style) ────────────────────────
-function PanelCard({
-  children,
-  delay = 0,
-  accent = '#A8A8B4',
-  heading,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  accent?: string;
-  heading: string;
+function PanelCard({ children, delay = 0, heading }: {
+  children: React.ReactNode; delay?: number; heading: string;
 }) {
   return (
     <motion.div
@@ -162,15 +120,9 @@ function PanelCard({
         padding: '18px 24px',
       }}
     >
-      {/* panel heading */}
       <p style={{
-        fontFamily: 'Cinzel, Georgia, serif',
-        fontWeight: 900,
-        fontSize: '0.88rem',
-        color: accent,
-        textTransform: 'uppercase',
-        letterSpacing: '0.1em',
-        marginBottom: 2,
+        fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900, fontSize: '0.88rem',
+        color: '#C8C8D0', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2,
       }}>◈ {heading}</p>
       <OrnateDivider />
       {children}
@@ -178,41 +130,6 @@ function PanelCard({
   );
 }
 
-// ── SegmentButton (track / theme) ──────────────────────────────────────────
-function SegBtn({
-  active, onClick, onHover, children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  onHover: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={onHover}
-      style={{
-        fontFamily: 'Cinzel, Georgia, serif',
-        fontWeight: 700,
-        fontSize: '0.8rem',
-        letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-        padding: '5px 14px',
-        cursor: 'pointer',
-        border: 'none',
-        clipPath: clip4,
-        background: active ? 'rgba(168,168,176,0.18)' : 'rgba(25,25,30,0.4)',
-        color: active ? '#D4D4DC' : '#5A5A6E',
-        borderLeft: `2px solid ${active ? '#A8A8B8' : 'transparent'}`,
-        transition: 'all 0.15s',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ── Main component ─────────────────────────────────────────────────────────
 export default function SettingsSection() {
   const { settings, updateSetting } = useGame();
   const { playHover, playToggle, fadeBGM } = useAudio();
@@ -226,7 +143,6 @@ export default function SettingsSection() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* ambient radial glow — same as ProjectsSection */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
         background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(168,168,176,0.04) 0%, transparent 70%)',
@@ -241,22 +157,15 @@ export default function SettingsSection() {
           {/* page heading */}
           <div>
             <p style={{
-              fontFamily: 'Cinzel, Georgia, serif',
-              fontWeight: 900,
-              fontSize: '0.72rem',
-              color: '#7A7A84',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              marginBottom: 4,
+              fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900,
+              fontSize: '0.72rem', color: '#7A7A84',
+              letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 4,
             }}>SYSTEM CONFIGURATION</p>
-            <div style={{
-              width: 100, height: 1,
-              background: 'linear-gradient(90deg, #A8A8B0, transparent)',
-            }} />
+            <div style={{ width: 100, height: 1, background: 'linear-gradient(90deg, #A8A8B0, transparent)' }} />
           </div>
 
           {/* ── AUDIO ── */}
-          <PanelCard heading="Audio" delay={0.1} accent="#C8C8D0">
+          <PanelCard heading="Audio" delay={0.1}>
             <SettingRow label="Master Volume" sub="Controls all audio output">
               <VolumeSlider label="Master Volume" value={settings.masterVolume} onChange={v => updateSetting('masterVolume', v)} />
             </SettingRow>
@@ -282,42 +191,8 @@ export default function SettingsSection() {
             </SettingRow>
           </PanelCard>
 
-          {/* ── GRAPHICS ── */}
-          <PanelCard heading="Graphics" delay={0.2} accent="#C8C8D0">
-            <SettingRow label="Performance Mode" sub="Reduces visual effects for better FPS">
-              <Toggle value={settings.performanceMode} onChange={v => updateSetting('performanceMode', v)} />
-            </SettingRow>
-            <SettingRow label="Particle Effects" sub="Ambient environment particles">
-              <Toggle value={settings.particles} onChange={v => updateSetting('particles', v)} />
-            </SettingRow>
-          </PanelCard>
-
-          {/* ── INTERFACE ── */}
-          <PanelCard heading="Interface" delay={0.3} accent="#C8C8D0">
-            <SettingRow label="HUD Visible" sub="Show/hide the status overlay">
-              <Toggle value={settings.hudVisible} onChange={v => updateSetting('hudVisible', v)} />
-            </SettingRow>
-            <SettingRow label="FPS Counter" sub="Display frames per second">
-              <Toggle value={settings.fpsCounter} onChange={v => updateSetting('fpsCounter', v)} />
-            </SettingRow>
-            <SettingRow label="Theme" sub="Color accent variant">
-              <div style={{ display: 'flex', gap: 6 }}>
-                {THEMES.map(t => (
-                  <SegBtn
-                    key={t.id}
-                    active={settings.theme === t.id}
-                    onClick={() => { updateSetting('theme', t.id as any); playToggle(); }}
-                    onHover={playHover}
-                  >
-                    {t.label}
-                  </SegBtn>
-                ))}
-              </div>
-            </SettingRow>
-          </PanelCard>
-
           {/* ── LANGUAGE ── */}
-          <PanelCard heading="Language" delay={0.4} accent="#C8C8D0">
+          <PanelCard heading="Language" delay={0.2}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
               {LANGUAGES.map(l => (
                 <button
@@ -325,22 +200,13 @@ export default function SettingsSection() {
                   onClick={() => { updateSetting('language', l.id as any); playToggle(); }}
                   onMouseEnter={playHover}
                   style={{
-                    fontFamily: 'Cinzel, Georgia, serif',
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase',
-                    padding: '8px 20px',
-                    cursor: 'pointer',
-                    border: 'none',
+                    fontFamily: 'Cinzel, Georgia, serif', fontWeight: 700, fontSize: '0.95rem',
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
+                    padding: '8px 20px', cursor: 'pointer', border: 'none',
                     clipPath: clip6,
-                    background: settings.language === l.id
-                      ? 'rgba(168,168,176,0.18)'
-                      : 'rgba(25,25,30,0.4)',
+                    background: settings.language === l.id ? 'rgba(168,168,176,0.18)' : 'rgba(25,25,30,0.4)',
                     color: settings.language === l.id ? '#D4D4DC' : '#5A5A6E',
-                    outline: settings.language === l.id
-                      ? '1px solid rgba(168,168,176,0.35)'
-                      : '1px solid transparent',
+                    outline: settings.language === l.id ? '1px solid rgba(168,168,176,0.35)' : '1px solid transparent',
                     transition: 'all 0.15s',
                   }}
                 >
@@ -354,7 +220,7 @@ export default function SettingsSection() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.3 }}
             style={{
               background: 'rgba(6,6,8,0.92)',
               border: '1px solid rgba(168,168,176,0.15)',
@@ -362,7 +228,6 @@ export default function SettingsSection() {
               overflow: 'hidden',
             }}
           >
-            {/* header card — mirrors DetailPanel header from ProjectsSection */}
             <div style={{
               borderTop: '2px solid #A8A8B0',
               padding: '14px 24px 10px',
@@ -370,49 +235,30 @@ export default function SettingsSection() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <p style={{
-                  fontFamily: 'Cinzel, Georgia, serif',
-                  fontWeight: 900,
-                  fontSize: '0.88rem',
-                  color: '#D4D4DC',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
+                  fontFamily: 'Cinzel, Georgia, serif', fontWeight: 900, fontSize: '0.88rem',
+                  color: '#D4D4DC', textTransform: 'uppercase', letterSpacing: '0.1em',
                 }}>◈ Developer Information</p>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {/* rarity badge */}
                   <span style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    color: '#9A9AA4',
-                    border: '1px solid rgba(168,168,176,0.25)',
-                    clipPath: clip4,
-                    padding: '2px 7px',
-                    letterSpacing: '0.08em',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 700,
+                    color: '#9A9AA4', border: '1px solid rgba(168,168,176,0.25)',
+                    clipPath: clip4, padding: '2px 7px', letterSpacing: '0.08em',
                   }}>BUILD v1.0.0</span>
-                  {/* status badge */}
                   <span style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    color: '#6DC87A',
-                    border: '1px solid rgba(109,200,122,0.3)',
-                    clipPath: clip4,
-                    padding: '2px 7px',
-                    letterSpacing: '0.08em',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 700,
+                    color: '#6DC87A', border: '1px solid rgba(109,200,122,0.3)',
+                    clipPath: clip4, padding: '2px 7px', letterSpacing: '0.08em',
                   }}>ACTIVE</span>
                 </div>
               </div>
               <p style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '0.65rem',
-                color: '#7A7A84',
-                letterSpacing: '0.05em',
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem',
+                color: '#7A7A84', letterSpacing: '0.05em',
               }}>PORTFOLIO · SYSTEM METADATA</p>
             </div>
 
             <OrnateDivider />
 
-            {/* data grid */}
             <div style={{ padding: '6px 24px 18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 24px' }}>
               {[
                 ['DEVELOPER',     'Harry Nielsen M. Lagto'],
@@ -424,19 +270,12 @@ export default function SettingsSection() {
               ].map(([k, v]) => (
                 <div key={k}>
                   <p style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.6rem',
-                    fontWeight: 700,
-                    color: '#7A7A84',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    marginBottom: 3,
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', fontWeight: 700,
+                    color: '#7A7A84', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3,
                   }}>{k}</p>
                   <p style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    color: '#C8C8D0',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.78rem',
+                    fontWeight: 600, color: '#C8C8D0',
                   }}>{v}</p>
                 </div>
               ))}

@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: 'Portfolio of Harry Nielsen M. Lagto — Aspiring Fullstack Developer from Metro Manila, Philippines. Specializing in Next.js, React, TypeScript, and mobile development.',
   keywords: ['Harry Lagto', 'frontend developer', 'mobile developer', 'Next.js', 'React', 'TypeScript', 'Philippines'],
   authors: [{ name: 'Harry Nielsen M. Lagto' }],
+  icons: {
+    icon: '/favicon.ico',
+  },
   openGraph: {
     title: 'Harry Nielsen M. Lagto | Aspiring Fullstack Developer',
     description: 'Portfolio',

@@ -6,6 +6,7 @@ import LoadingScreen from '@/components/LoadingScreen/LoadingScreen';
 import GameWorld from '@/components/GameWorld/GameWorld';
 import MainMenu from '@/components/MainMenu/MainMenu';
 import RecruiterMode from '@/components/RecruiterMode/RecruiterMode';
+import LogoViewer from '@/components/Logo/LogoViewer';
 
 // Section panels
 import ProfileSection from '@/components/sections/ProfileSection';

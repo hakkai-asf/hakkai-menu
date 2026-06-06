@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame, Section } from '@/lib/contexts/GameContext';
 import { useAudio } from '@/lib/contexts/AudioContext';
+import Image from 'next/image';
 
 const NAV_ITEMS: { id: Section; label: string }[] = [
   { id: 'projects',  label: 'PROJECTS' },
@@ -77,12 +78,6 @@ export default function MainMenu() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  /* ── Title-screen nav ──
-     playStartGame() returns a Promise. We await it before calling
-     playBGM so the AudioContext is guaranteed to be running first.
-     BGM uses the same context — if we call it simultaneously it
-     races against a suspended state and gets silently dropped.
-  */
   const handleTitleMenuSelect = (id: Section) => {
     setIsTitleScreen(false);
     playStartGame().then(() => {
@@ -93,7 +88,6 @@ export default function MainMenu() {
     }, 80);
   };
 
-  /* ── Inner-menu nav ── */
   const handleSelect = (id: Section) => {
     if (isMobile) setMobileMenuOpen(false);
     if (id === currentSection) {
@@ -120,9 +114,9 @@ export default function MainMenu() {
     return (
       <div
         className="fixed inset-0 flex flex-col items-center justify-between pointer-events-auto"
-        style={{ background: '#050505', padding: '15vh 0 10vh', zIndex: 99999 }}
+        style={{ background: '#050505', padding: '12vh 0 10vh', zIndex: 99999 }}
       >
-        {/* Emblem */}
+        {/* Rune emblem background */}
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 0.3, scale: 1 }}
@@ -146,7 +140,7 @@ export default function MainMenu() {
           pointerEvents: 'none',
         }} />
 
-        {/* Title */}
+        {/* ── TITLE BLOCK: Logo + Title ── */}
         <motion.div
           className="relative z-10 flex flex-col items-center w-full px-8"
           style={{ maxWidth: '100vw', textAlign: 'center' }}
@@ -154,6 +148,39 @@ export default function MainMenu() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2.4, ease: 'easeOut', delay: 0.4 }}
         >
+          {/* Hakkai Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 1.8, ease: 'easeOut', delay: 0.6 }}
+            style={{ marginBottom: '1.4rem', position: 'relative' }}
+          >
+            {/* subtle glow behind logo */}
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '140%', height: '140%',
+              borderRadius: '50%',
+              background: 'radial-gradient(ellipse at center, rgba(212,212,220,0.12) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }} />
+            <Image
+              src="/Hakkai-Logo.png"
+              alt="Hakkai Logo"
+              width={140}
+              height={140}
+              style={{
+                width: 'clamp(90px, 12vw, 140px)',
+                height: 'auto',
+                filter: 'drop-shadow(0 0 18px rgba(212,212,220,0.35)) drop-shadow(0 0 40px rgba(168,168,176,0.15))',
+                position: 'relative',
+                zIndex: 1,
+              }}
+              priority
+            />
+          </motion.div>
+
+          {/* Portfolio title */}
           <h1 style={{
             fontFamily: '"Cinzel Decorative", "Cinzel", "Rajdhani", serif',
             fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
