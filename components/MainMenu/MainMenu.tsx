@@ -277,7 +277,7 @@ export default function MainMenu() {
               textTransform: 'uppercase',
             }}
           >
-            © 2024 Harry Nielsen M. Lagto — Metro Manila, PH
+            © 2026 Harry Nielsen M. Lagto — Metro Manila, PH
           </motion.p>
         </motion.div>
       </div>
@@ -289,24 +289,66 @@ export default function MainMenu() {
      ════════════════════════════════════════════ */
   if (isMobile && !mobileMenuOpen) {
     return (
-      <div className="fixed top-5 right-5 z-[99999]">
-        <button
-          onClick={() => { playSelect(); setMobileMenuOpen(true); }}
-          className="flex flex-col gap-1.5 justify-center items-center"
-          style={{
-            width: 48, height: 48,
-            background: 'rgba(6,6,8,0.88)',
-            backdropFilter: 'blur(14px)',
-            border: '1px solid rgba(168,168,176,0.35)',
-            clipPath: 'polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px)',
-          }}
-          aria-label="Open menu"
-        >
-          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
-          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
-          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
-        </button>
-      </div>
+      <>
+        {currentSection === 'menu' && (
+          <motion.div
+            className="fixed inset-0 z-20 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            aria-hidden="true"
+          >
+            <div
+              style={{
+                position: 'relative',
+                width: 'clamp(132px, 52vw, 190px)',
+                height: 'clamp(132px, 52vw, 190px)',
+                transform: 'translateY(-3vh)',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: '-20%',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(ellipse at center, rgba(212,212,220,0.14) 0%, rgba(168,168,176,0.05) 42%, transparent 70%)',
+                  filter: 'blur(2px)',
+                }}
+              />
+              <Image
+                src="/Hakkai-Logo.png"
+                alt="Hakkai Logo"
+                fill
+                sizes="(max-width: 767px) 52vw"
+                style={{
+                  objectFit: 'contain',
+                  filter: 'drop-shadow(0 0 18px rgba(212,212,220,0.42)) drop-shadow(0 0 42px rgba(168,168,176,0.18))',
+                }}
+                priority
+              />
+            </div>
+          </motion.div>
+        )}
+
+        <div className="fixed top-5 right-5 z-[99999]">
+          <button
+            onClick={() => { playSelect(); setMobileMenuOpen(true); }}
+            className="flex flex-col gap-1.5 justify-center items-center"
+            style={{
+              width: 48, height: 48,
+              background: 'rgba(6,6,8,0.88)',
+              backdropFilter: 'blur(14px)',
+              border: '1px solid rgba(168,168,176,0.35)',
+              clipPath: 'polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px)',
+            }}
+            aria-label="Open menu"
+          >
+            <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
+            <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
+            <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -438,7 +480,7 @@ export default function MainMenu() {
               textTransform: 'uppercase',
               textAlign: 'center',
             }}>
-              © 2024 Harry Nielsen M. Lagto
+              © 2026 Harry Nielsen M. Lagto
             </p>
           </div>
         </motion.div>
@@ -451,6 +493,42 @@ export default function MainMenu() {
      ════════════════════════════════════════════ */
   return (
     <div className="fixed inset-0 pointer-events-none flex" style={{ zIndex: 99999 }}>
+      <motion.div
+        className="absolute pointer-events-none hidden md:block"
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+        aria-hidden="true"
+        style={{
+          left: 'clamp(52px, 7vw, 92px)',
+          top: 'clamp(34px, 7vh, 72px)',
+          width: 'clamp(190px, 18vw, 270px)',
+          height: 'clamp(190px, 18vw, 270px)',
+          zIndex: 1,
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            inset: '-18%',
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(212,212,220,0.12) 0%, rgba(168,168,176,0.04) 45%, transparent 72%)',
+            filter: 'blur(2px)',
+          }}
+        />
+        <Image
+          src="/Hakkai-Logo.png"
+          alt="Hakkai Logo"
+          fill
+          sizes="(min-width: 768px) 18vw"
+          style={{
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 0 20px rgba(212,212,220,0.36)) drop-shadow(0 0 48px rgba(168,168,176,0.16))',
+          }}
+          priority
+        />
+      </motion.div>
+
       <motion.div
         className="absolute pointer-events-auto flex flex-col"
         initial={false}
