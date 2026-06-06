@@ -5,13 +5,13 @@ import { AudioProvider } from '@/lib/contexts/AudioContext';
 import AppShell from '@/components/AppShell/AppShell';
 
 export const metadata: Metadata = {
-  title: 'Harry Nielsen M. Lagto | Mobile & Web Developer',
-  description: 'Portfolio of Harry Nielsen M. Lagto — Mobile and Web Developer from Metro Manila, Philippines. Specializing in Next.js, React, TypeScript, and mobile development.',
-  keywords: ['Harry Lagto', 'web developer', 'mobile developer', 'Next.js', 'React', 'TypeScript', 'Philippines'],
+  title: 'Harry Nielsen M. Lagto | Aspiring Fullstack Developer',
+  description: 'Portfolio of Harry Nielsen M. Lagto — Aspiring Fullstack Developer from Metro Manila, Philippines. Specializing in Next.js, React, TypeScript, and mobile development.',
+  keywords: ['Harry Lagto', 'frontend developer', 'mobile developer', 'Next.js', 'React', 'TypeScript', 'Philippines'],
   authors: [{ name: 'Harry Nielsen M. Lagto' }],
   openGraph: {
-    title: 'Harry Nielsen M. Lagto | Mobile & Web Developer',
-    description: 'Portfolio — Mobile and Web Developer',
+    title: 'Harry Nielsen M. Lagto | Aspiring Fullstack Developer',
+    description: 'Portfolio',
     type: 'website',
   },
 };

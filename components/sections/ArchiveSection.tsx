@@ -3,6 +3,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '@/lib/contexts/AudioContext';
 
+// ─── Silver palette (ProjectsSection exact) ───────────────────────────────────
+const clip4 = 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px)';
+const clip6 = 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)';
+const FONT_CINZEL = '"Cinzel", "Georgia", serif';
+const FONT_MONO   = '"JetBrains Mono", "Courier New", monospace';
+// ─────────────────────────────────────────────────────────────────────────────
+
 const BOOT_LINES = [
   '> ACCESSING CLASSIFIED DATABASE...',
   '> SECURITY LEVEL: OPEN',
@@ -25,90 +32,232 @@ function getGoogleDriveFileId(url: string) {
     ''
   );
 }
-
 function getGoogleDrivePreviewUrl(url: string) {
-  const fileId = getGoogleDriveFileId(url);
-
-  return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url;
+  const id = getGoogleDriveFileId(url);
+  return id ? `https://drive.google.com/file/d/${id}/preview` : url;
 }
-
 function getGoogleDriveDownloadUrl(url: string) {
-  const fileId = getGoogleDriveFileId(url);
-
-  return fileId ? `https://drive.google.com/uc?export=download&id=${fileId}` : LOCAL_CV_PATH;
+  const id = getGoogleDriveFileId(url);
+  return id ? `https://drive.google.com/uc?export=download&id=${id}` : LOCAL_CV_PATH;
 }
 
+/* ── Ornate divider — verbatim from ProjectsSection ── */
+function OrnateDivider() {
+  return (
+    <div className="flex items-center justify-center my-3 w-full" style={{ opacity: 0.6 }}>
+      <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, #A8A8B0, transparent)' }} />
+      <span
+        className="mx-2 text-[8px] border p-[2px] leading-none flex items-center justify-center transform rotate-45"
+        style={{ color: '#A8A8B0', borderColor: 'rgba(168,168,176,0.4)' }}
+      >◈</span>
+      <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, #A8A8B0, transparent)' }} />
+    </div>
+  );
+}
+
+/* ── Mono sub-section label (matches "Armament Attribute Scale") ── */
+function PanelLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{
+      fontFamily:    FONT_MONO,
+      fontSize:      '0.72rem',
+      letterSpacing: '0.18em',
+      color:         '#9A9AA4',
+      textTransform: 'uppercase',
+      marginBottom:  '0.5rem',
+      paddingBottom: '0.375rem',
+      borderBottom:  '1px solid rgba(168,168,176,0.08)',
+    }}>
+      {children}
+    </p>
+  );
+}
+
+/* ── Ghost button (replaces .btn-ghost) ── */
+function GhostBtn({
+  href, download, target, rel, onClick, onMouseEnter, children, style,
+}: {
+  href?: string;
+  download?: boolean;
+  target?: string;
+  rel?: string;
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  const base: React.CSSProperties = {
+    fontFamily:     FONT_MONO,
+    fontSize:       '0.72rem',
+    letterSpacing:  '0.14em',
+    textTransform:  'uppercase',
+    color:          '#C8C8D0',
+    background:     'rgba(6,6,8,0.85)',
+    border:         '1px solid rgba(168,168,176,0.22)',
+    padding:        '8px 18px',
+    clipPath:       clip4,
+    cursor:         'pointer',
+    textDecoration: 'none',
+    display:        'inline-block',
+    textAlign:      'center',
+    transition:     'all 0.15s',
+    ...style,
+  };
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        download={download}
+        target={target}
+        rel={rel}
+        style={base}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+        onMouseOver={e => {
+          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,212,220,0.45)';
+          (e.currentTarget as HTMLElement).style.color       = '#F0F0FF';
+          (e.currentTarget as HTMLElement).style.boxShadow  = '0 0 12px rgba(212,212,220,0.1)';
+        }}
+        onMouseOut={e => {
+          (e.currentTarget as HTMLElement).style.borderColor = 'rgba(168,168,176,0.22)';
+          (e.currentTarget as HTMLElement).style.color       = '#C8C8D0';
+          (e.currentTarget as HTMLElement).style.boxShadow  = 'none';
+        }}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <button
+      style={base}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseOver={e => {
+        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,212,220,0.45)';
+        (e.currentTarget as HTMLElement).style.color       = '#F0F0FF';
+        (e.currentTarget as HTMLElement).style.boxShadow  = '0 0 12px rgba(212,212,220,0.1)';
+      }}
+      onMouseOut={e => {
+        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(168,168,176,0.22)';
+        (e.currentTarget as HTMLElement).style.color       = '#C8C8D0';
+        (e.currentTarget as HTMLElement).style.boxShadow  = 'none';
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* ══════════════════════════════════════════════════════
+   MAIN COMPONENT
+══════════════════════════════════════════════════════ */
 export default function ArchiveSection() {
   const { playHover, playConfirm, playToggle } = useAudio();
   const [lines, setLines] = useState(0);
   const [ready, setReady] = useState(false);
-  const [zoom, setZoom] = useState(1.0);
+  const [zoom,  setZoom ] = useState(1.0);
+
   const cvDownloadUrl = useMemo(() => getGoogleDriveDownloadUrl(GOOGLE_DRIVE_CV_URL), []);
-  const cvPreviewUrl = useMemo(() => {
-    return getGoogleDrivePreviewUrl(GOOGLE_DRIVE_CV_URL);
-  }, []);
+  const cvPreviewUrl  = useMemo(() => getGoogleDrivePreviewUrl(GOOGLE_DRIVE_CV_URL),  []);
 
   useEffect(() => {
     let i = 0;
     const t = setInterval(() => {
       i++;
       setLines(i);
-      if (i >= BOOT_LINES.length) {
-        clearInterval(t);
-        setTimeout(() => setReady(true), 400);
-      }
+      if (i >= BOOT_LINES.length) { clearInterval(t); setTimeout(() => setReady(true), 400); }
     }, 200);
     return () => clearInterval(t);
   }, []);
 
-  const zoomIn = () => { setZoom(z => Math.min(2.5, parseFloat((z + 0.25).toFixed(2)))); playToggle(); };
-  const zoomOut = () => { setZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2)))); playToggle(); };
+  const zoomIn    = () => { setZoom(z => Math.min(2.5, parseFloat((z + 0.25).toFixed(2)))); playToggle(); };
+  const zoomOut   = () => { setZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2)))); playToggle(); };
   const resetZoom = () => { setZoom(1.0); playToggle(); };
+
+  /* terminal line colour — silver */
+  const lineColor = (line: string, i: number) => {
+    if (line.includes('GRANTED'))   return '#6DC87A';   // green — same as ACTIVE badge
+    if (line.includes('ACCESSING')) return '#C8C8D0';   // bright silver
+    if (i >= BOOT_LINES.length - 1) return '#7A7A84';   // muted
+    return '#9A9AA4';                                    // mid silver
+  };
 
   return (
     <motion.div
-      className="fixed inset-0 z-10 flex flex-col sm:flex-row overflow-auto bg-[#0a0a0c] text-[#E8E0D4] max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)]"
+      className="fixed inset-0 z-10 flex flex-col max-md:!pl-0 md:pl-[clamp(280px,30vw,400px)] overflow-y-auto scrollable"
+      style={{ background: '#050505', color: '#D4D4DC' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Outer scrollable column */}
-      <div
-        className="scrollable flex flex-col gap-5 w-full sm:max-w-2xl px-4 py-6 sm:px-8 sm:py-8"
-        style={{ overflowY: 'auto', overflowX: 'hidden' }}
-      >
+      {/* Ambient radial glow */}
+      <div style={{
+        position: 'fixed', top: '40%', left: '55%',
+        width: '60vw', height: '60vw', borderRadius: '50%',
+        background: 'radial-gradient(ellipse at center, rgba(168,168,176,0.03) 0%, transparent 70%)',
+        pointerEvents: 'none', zIndex: 0,
+      }} />
 
-        {/* Header */}
+      <div className="flex flex-col gap-4 md:gap-5 w-full max-w-2xl px-4 pt-16 pb-10 md:px-8 md:py-8 md:pt-8 relative z-10">
+
+        {/* ── Page header ── */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <p className="section-label mb-1">CLASSIFIED DATABASE</p>
-          <div className="rule-gold-left" style={{ width: 100 }} />
-          <h2 style={{ fontFamily: 'Cinzel, Georgia, serif', fontWeight: 400, fontSize: '1.8rem', color: '#E8C98E', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 8 }}>
-            PORTFOLIO ARCHIVE
+          <h2 style={{
+            fontFamily:    FONT_CINZEL,
+            fontWeight:    400,
+            fontSize:      'clamp(1.1rem, 2.5vw, 1.4rem)',
+            letterSpacing: '0.18em',
+            color:         '#D4D4DC',
+            textTransform: 'uppercase',
+            textShadow:    '0 0 20px rgba(212,212,220,0.15)',
+            marginBottom:  4,
+          }}>
+            Portfolio Archive
           </h2>
+          <p style={{
+            fontFamily:    FONT_MONO,
+            fontSize:      '0.72rem',
+            letterSpacing: '0.14em',
+            color:         '#9A9AA4',
+            textTransform: 'uppercase',
+          }}>
+            Classified database — open access
+          </p>
+          <div style={{ height: 1, background: 'linear-gradient(90deg, rgba(168,168,176,0.4), transparent)', marginTop: 10 }} />
         </motion.div>
 
-        {/* Terminal boot */}
+        {/* ── Terminal boot sequence ── */}
         <motion.div
-          className="panel"
-          style={{
-            padding: '20px 24px',
-            borderColor: 'rgba(200, 169, 110, 0.2)',
-            clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
-          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
+          style={{
+            background: 'rgba(6,6,8,0.92)',
+            border:     '1px solid rgba(168,168,176,0.12)',
+            padding:    '16px 18px',
+            clipPath:   clip6,
+          }}
         >
-          <div className="flex items-center gap-2 mb-3">
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#E63946' }} />
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#C8A96E' }} />
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2ECC71' }} />
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.5rem', color: '#C8A96E', marginLeft: 8 }}>
+          {/* Chrome dots — silver grayscale */}
+          <div className="flex items-center gap-2" style={{ marginBottom: 10 }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#4A4A52' }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#6E6E7A' }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#9A9AA4' }} />
+            <span style={{
+              fontFamily:    FONT_MONO,
+              fontSize:      '0.5rem',
+              color:         '#7A7A84',
+              marginLeft:    6,
+              letterSpacing: '0.1em',
+            }}>
               ARCHIVE SYSTEM v1.0 — SECURE ACCESS
             </span>
           </div>
-          <div className="rule-gold mb-3" />
+          <OrnateDivider />
+
           <div className="flex flex-col gap-0.5">
             {BOOT_LINES.slice(0, lines).map((line, i) => (
               <motion.p
@@ -117,178 +266,303 @@ export default function ArchiveSection() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.15 }}
                 style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '0.65rem',
-                  lineHeight: 1.8,
+                  fontFamily:    FONT_MONO,
+                  fontSize:      '0.65rem',
+                  lineHeight:    1.8,
                   letterSpacing: '0.04em',
-                  color: line.includes('GRANTED') ? '#2ECC71'
-                    : line.includes('ACCESSING') ? '#4ECDC4'
-                      : 'rgba(200,169,110,0.7)',
+                  color:         lineColor(line, i),
                 }}
               >
                 {line}
               </motion.p>
             ))}
             {lines < BOOT_LINES.length && (
-              <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity }}
-                style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem', color: '#C8A96E' }}>_</motion.span>
+              <motion.span
+                animate={{ opacity: [1, 0] }}
+                transition={{ duration: 0.6, repeat: Infinity }}
+                style={{ fontFamily: FONT_MONO, fontSize: '0.7rem', color: '#9A9AA4' }}
+              >_</motion.span>
             )}
           </div>
         </motion.div>
 
-        {/* Archive record + PDF viewer */}
+        {/* ── Archive record + PDF viewer (appears after boot) ── */}
         {ready && (
           <motion.div
-            className="panel-gold panel"
-            style={{
-              padding: '24px 28px',
-              borderColor: '#C8A96E',
-              boxShadow: '0 0 20px rgba(200, 169, 110, 0.15)',
-              clipPath: 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0% calc(100% - 6px), 0% 6px)',
-            }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {/* File header */}
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.5rem', color: '#C8A96E', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                  RECORD ID: ARC-HNL-2024-001
-                </p>
-                <h3 style={{ fontFamily: 'Cinzel, Georgia, serif', fontWeight: 400, fontSize: '1.3rem', color: '#E8C98E', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4 }}>
-                  Developer Portfolio
-                </h3>
-                <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.58rem', color: '#C8A96E', marginTop: 2 }}>
-                  Harry Nielsen M. Lagto · Aspiring Fullstack Developer
-                </p>
-              </div>
-              <div style={{ background: 'rgba(46,204,113,0.1)', border: '1px solid rgba(46,204,113,0.3)', padding: '4px 12px' }}>
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.5rem', color: '#2ECC71', letterSpacing: '0.1em' }}>
-                  ● ACCESSIBLE
-                </span>
-              </div>
-            </div>
+            {/* ── Header card — mirrors DetailPanel top card from ProjectsSection ── */}
+            <div
+              style={{
+                position:     'relative',
+                background:   'rgba(4,4,6,0.7)',
+                border:       '1px solid rgba(168,168,176,0.2)',
+                borderTop:    '2px solid #A8A8B0',
+                clipPath:     clip6,
+                padding:      '16px 18px',
+                marginBottom: 0,
+              }}
+            >
+              {/* Radial glow */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'radial-gradient(ellipse at top left, rgba(168,168,176,0.05) 0%, transparent 60%)',
+                pointerEvents: 'none',
+              }} />
 
-            <div className="rule-gold mb-4" />
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-              {[
-                ['FILED BY', 'Harry Nielsen Lagto'],
-                ['CLASSIFICATION', 'Open Access'],
-                ['FORMAT', 'PDF Document'],
-              ].map(([label, val]) => (
-                <div key={label}>
-                  <p className="hud-label">{label}</p>
-                  <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.62rem', color: '#E8E0D4', marginTop: 2 }}>{val}</p>
+              <div className="flex flex-col xs:flex-row justify-between items-start gap-3 relative">
+                <div className="min-w-0">
+                  <p style={{
+                    fontFamily:    FONT_MONO,
+                    fontSize:      '0.65rem',
+                    color:         '#9A9AA4',
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    marginBottom:  6,
+                  }}>
+                    RECORD-ID &bull; ARC-HNL-2024-001 &bull; PORTFOLIO
+                  </p>
+                  <h3 style={{
+                    fontFamily:    FONT_CINZEL,
+                    fontWeight:    400,
+                    fontSize:      'clamp(1.3rem, 3vw, 1.9rem)',
+                    color:         '#D4D4DC',
+                    letterSpacing: '0.06em',
+                    lineHeight:    1.15,
+                    textShadow:    '0 0 20px rgba(212,212,220,0.15)',
+                  }}>
+                    Developer Portfolio
+                  </h3>
+                  <p style={{
+                    fontFamily:    FONT_MONO,
+                    fontSize:      '0.72rem',
+                    color:         '#9A9AA4',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginTop:     4,
+                  }}>
+                    Harry Nielsen M. Lagto · Aspiring Fullstack Developer
+                  </p>
                 </div>
-              ))}
+
+                {/* Rarity + status badges — identical pattern to ProjectsSection */}
+                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                  <span style={{
+                    fontFamily:    FONT_MONO,
+                    fontSize:      '0.65rem',
+                    letterSpacing: '0.15em',
+                    border:        '1px solid rgba(168,168,176,0.3)',
+                    color:         '#A8A8B0',
+                    padding:       '2px 8px',
+                    textTransform: 'uppercase',
+                    clipPath:      clip4,
+                  }}>
+                    RARE
+                  </span>
+                  <span style={{
+                    fontFamily:    FONT_MONO,
+                    fontSize:      '0.65rem',
+                    letterSpacing: '0.15em',
+                    border:        '1px solid rgba(109,200,122,0.3)',
+                    color:         '#6DC87A',
+                    background:    'rgba(109,200,122,0.05)',
+                    padding:       '2px 8px',
+                    textTransform: 'uppercase',
+                    clipPath:      clip4,
+                  }}>
+                    ACCESSIBLE
+                  </span>
+                </div>
+              </div>
+
+              <OrnateDivider />
+
+              {/* Description — matches lore text style */}
+              <p style={{
+                fontFamily: FONT_CINZEL,
+                fontSize:   '0.82rem',
+                color:      '#AEAEB8',
+                fontStyle:  'italic',
+                lineHeight: 1.75,
+                paddingLeft: '0.75rem',
+                borderLeft: '2px solid rgba(168,168,176,0.25)',
+              }}>
+                &ldquo;Curriculum vitae — complete professional record including projects, technical skills, and work history.&rdquo;
+              </p>
             </div>
 
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: '#E8E0D4', lineHeight: 1.6, marginBottom: 20 }}>
-              Curriculum vitae — complete professional record including projects, technical skills, and work history.
-            </p>
+            {/* ── Metadata + actions card ── */}
+            <div style={{
+              background: 'rgba(6,6,8,0.92)',
+              border:     '1px solid rgba(168,168,176,0.12)',
+              borderTop:  'none',
+              padding:    '16px 18px',
+              clipPath:   clip6,
+              marginBottom: 0,
+            }}>
+              {/* Metadata grid — matches scaling/reqs grid style */}
+              <PanelLabel>File Details</PanelLabel>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                {([
+                  ['FILED BY',       'Harry Nielsen Lagto'],
+                  ['CLASSIFICATION', 'Open Access'],
+                  ['FORMAT',         'PDF Document'],
+                ] as [string, string][]).map(([k, v]) => (
+                  <div key={k}>
+                    <p style={{
+                      fontFamily:    FONT_MONO,
+                      fontSize:      '0.62rem',
+                      letterSpacing: '0.12em',
+                      color:         '#7A7A84',
+                      textTransform: 'uppercase',
+                      marginBottom:  3,
+                    }}>
+                      {k}
+                    </p>
+                    <p style={{
+                      fontFamily: FONT_MONO,
+                      fontSize:   '0.78rem',
+                      color:      '#C8C8D0',
+                    }}>
+                      {v}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-3 mb-5 flex-wrap">
-              <a
-                href={cvDownloadUrl}
-                download
-                id="archive-cv"
-                className="btn-ghost"
-                style={{ textDecoration: 'none', display: 'inline-block' }}
-                onMouseEnter={() => playHover()}
-                onClick={() => playConfirm()}
-              >
-                ↓ DOWNLOAD CV
-              </a>
-              <a
-                href={cvPreviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-ghost"
-                style={{ textDecoration: 'none', display: 'inline-block' }}
-                onMouseEnter={() => playHover()}
-                onClick={() => playConfirm()}
-              >
-                ↗ OPEN IN NEW TAB
-              </a>
+              {/* Action buttons */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {/* Primary CTA — solid chrome (matches "Use Item — Launch Demo") */}
+                <a
+                  href={cvDownloadUrl}
+                  download
+                  onMouseEnter={playHover}
+                  onClick={playConfirm}
+                  style={{
+                    fontFamily:     FONT_CINZEL,
+                    fontSize:       '0.78rem',
+                    letterSpacing:  '0.18em',
+                    color:          '#050505',
+                    background:     '#D4D4DC',
+                    padding:        '10px 24px',
+                    clipPath:       clip6,
+                    textDecoration: 'none',
+                    display:        'block',
+                    textAlign:      'center',
+                    textTransform:  'uppercase',
+                    transition:     'background 0.18s, box-shadow 0.18s',
+                    flex:           1,
+                  }}
+                  onMouseOver={e => {
+                    (e.currentTarget as HTMLElement).style.background  = '#ffffff';
+                    (e.currentTarget as HTMLElement).style.boxShadow  = '0 0 18px rgba(212,212,220,0.3)';
+                  }}
+                  onMouseOut={e => {
+                    (e.currentTarget as HTMLElement).style.background  = '#D4D4DC';
+                    (e.currentTarget as HTMLElement).style.boxShadow  = 'none';
+                  }}
+                >
+                  ↓ Download CV
+                </a>
+
+                {/* Ghost CTA */}
+                <GhostBtn
+                  href={cvPreviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onMouseEnter={playHover}
+                  onClick={playConfirm}
+                  style={{ flex: 1, padding: '10px 24px' }}
+                >
+                  ↗ Open in New Tab
+                </GhostBtn>
+              </div>
             </div>
 
-            {/* ── PDF VIEWER ── */}
-            <div>
-              {/* Viewer toolbar */}
+            {/* ── PDF Viewer ── */}
+            <div style={{ marginTop: 16 }}>
+              {/* Toolbar */}
               <div
-                className="flex items-center justify-between"
+                className="flex flex-wrap items-center justify-between gap-2"
                 style={{
-                  background: 'rgba(0,0,0,0.5)',
-                  border: '1px solid rgba(200,169,110,0.25)',
+                  background: 'rgba(4,4,6,0.85)',
+                  border:     '1px solid rgba(168,168,176,0.18)',
                   borderBottom: 'none',
-                  padding: '8px 14px',
-                  clipPath: 'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% 100%, 0% 100%, 0% 4px)',
+                  padding:    '8px 14px',
+                  clipPath:   'polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% 100%, 0% 100%, 0% 4px)',
                 }}
               >
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.52rem', color: '#C8A96E', letterSpacing: '0.12em' }}>
+                <span style={{
+                  fontFamily:    FONT_MONO,
+                  fontSize:      '0.58rem',
+                  color:         '#9A9AA4',
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  whiteSpace:    'nowrap',
+                }}>
                   CV — SECURE VIEW
                 </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '3px 10px', fontSize: '0.9rem', lineHeight: 1 }}
-                    onClick={zoomOut}
-                    onMouseEnter={() => playHover()}
-                    title="Zoom Out"
-                  >−</button>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.6rem', color: '#E8C98E', minWidth: 40, textAlign: 'center' }}>
+
+                {/* Zoom controls */}
+                <div className="flex items-center gap-1.5">
+                  <GhostBtn onClick={zoomOut} onMouseEnter={playHover} style={{ padding: '3px 10px', fontSize: '0.95rem', lineHeight: '1' }}>−</GhostBtn>
+                  <span style={{
+                    fontFamily: FONT_MONO,
+                    fontSize:   '0.62rem',
+                    color:      '#C8C8D0',
+                    minWidth:   36,
+                    textAlign:  'center',
+                  }}>
                     {Math.round(zoom * 100)}%
                   </span>
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '3px 10px', fontSize: '0.9rem', lineHeight: 1 }}
-                    onClick={zoomIn}
-                    onMouseEnter={() => playHover()}
-                    title="Zoom In"
-                  >+</button>
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '3px 10px', fontSize: '0.6rem' }}
-                    onClick={resetZoom}
-                    onMouseEnter={() => playHover()}
-                    title="Reset Zoom"
-                  >⊙ RESET</button>
+                  <GhostBtn onClick={zoomIn}  onMouseEnter={playHover} style={{ padding: '3px 10px', fontSize: '0.95rem', lineHeight: '1' }}>+</GhostBtn>
+                  <GhostBtn onClick={resetZoom} onMouseEnter={playHover} style={{ padding: '3px 10px', fontSize: '0.55rem' }}>⊙ RESET</GhostBtn>
                 </div>
               </div>
 
               {/* iframe container */}
-              <div
-                style={{
-                  width: '100%',
-                  height: '70vh',
-                  overflow: 'auto',
-                  background: 'rgba(5,5,8,0.95)',
-                  border: '1px solid rgba(200,169,110,0.35)',
-                  position: 'relative',
-                }}
-              >
+              <div style={{
+                width:      '100%',
+                height:     'clamp(340px, 55vh, 100vh)',
+                overflow:   'auto',
+                background: 'rgba(4,4,6,0.95)',
+                border:     '1px solid rgba(168,168,176,0.2)',
+                position:   'relative',
+              }}>
                 <iframe
                   src={cvPreviewUrl}
                   title="CV Document"
                   style={{
-                    width: `${Math.round(zoom * 100)}%`,
-                    height: `${Math.max(100, Math.round(zoom * 100))}%`,
-                    border: 'none',
-                    display: 'block',
-                    minHeight: '100%',
+                    width:       `${Math.round(zoom * 100)}%`,
+                    height:      `${Math.max(100, Math.round(zoom * 100))}%`,
+                    border:      'none',
+                    display:     'block',
+                    minHeight:   '100%',
                     transformOrigin: 'top left',
                   }}
                 />
               </div>
+
+              {/* Mobile hint */}
+              <p
+                className="block sm:hidden text-center mt-2"
+                style={{
+                  fontFamily:    FONT_MONO,
+                  fontSize:      '0.5rem',
+                  color:         '#7A7A84',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Pinch to zoom · Use ↗ to open full screen
+              </p>
             </div>
           </motion.div>
         )}
 
-        {/* Bottom spacer */}
-        <div style={{ height: 40 }} />
+        <div style={{ height: 24 }} />
       </div>
     </motion.div>
   );

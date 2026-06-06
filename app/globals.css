@@ -6,34 +6,45 @@
 
 
 /* ============================================================
-   DESIGN TOKENS
+   DESIGN TOKENS — Chrome Hearts (Black × Silver)
    ============================================================ */
 :root {
-  --color-gold: #C8A96E;
-  --color-gold-light: #E8C98E;
-  --color-gold-dark: #A87940;
-  --color-gold-glow: rgba(200, 169, 110, 0.35);
-  --color-teal: #4ECDC4;
-  --color-teal-glow: rgba(78, 205, 196, 0.35);
-  --color-bg: #0A0A0F;
-  --color-bg2: #0D0D16;
-  --color-surface: rgba(255, 255, 255, 0.04);
-  --color-surface-hover: rgba(255, 255, 255, 0.08);
-  --color-border: rgba(200, 169, 110, 0.2);
-  --color-border-active: rgba(200, 169, 110, 0.7);
-  --color-danger: #E63946;
-  --color-success: #2ECC71;
-  --color-text: #E8E0D4;
-  --color-text-muted: #E8E0D4;
-  --color-text-dim: #E8E0D4;
+  /* ── Silver / Chrome palette ── */
+  --color-gold:        #A8A8B0;   /* sterling silver mid */
+  --color-gold-light:  #D4D4DC;   /* polished chrome highlight */
+  --color-gold-dark:   #6E6E78;   /* brushed steel shadow */
+  --color-gold-glow:   rgba(180, 180, 192, 0.28);  /* cold chrome halo */
 
+  /* ── Cold steel accent (replaces teal) ── */
+  --color-teal:        #8BA8B8;   /* gunmetal blue-steel */
+  --color-teal-glow:   rgba(139, 168, 184, 0.28);
+
+  /* ── Backgrounds — pure void black ── */
+  --color-bg:          #060608;   /* near-absolute black */
+  --color-bg2:         #09090D;   /* slightly lifted black */
+  --color-surface:     rgba(255, 255, 255, 0.03);
+  --color-surface-hover: rgba(255, 255, 255, 0.06);
+
+  /* ── Borders — cold silver ── */
+  --color-border:        rgba(180, 180, 192, 0.16);
+  --color-border-active: rgba(212, 212, 220, 0.65);
+
+  /* ── Utility ── */
+  --color-danger:      #CC3333;
+  --color-success:     #4CAF82;   /* slightly desaturated green, less vivid */
+  --color-text:        #D8D4CC;   /* warm off-white parchment */
+  --color-text-muted:  #D8D4CC;
+  --color-text-dim:    #D8D4CC;
+
+  /* ── Fonts ── */
   --font-display: 'Cinzel', Georgia, serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 
-  --transition-fast: 0.15s ease;
-  --transition-mid: 0.3s ease;
-  --transition-slow: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  /* ── Transitions ── */
+  --transition-fast:     0.15s ease;
+  --transition-mid:      0.3s ease;
+  --transition-slow:     0.6s cubic-bezier(0.22, 1, 0.36, 1);
   --transition-cinematic: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -59,7 +70,7 @@ html, body {
 }
 
 /* ============================================================
-   SCROLLBAR
+   SCROLLBAR — brushed steel
    ============================================================ */
 ::-webkit-scrollbar {
   width: 4px;
@@ -75,11 +86,11 @@ html, body {
    TYPOGRAPHY
    ============================================================ */
 .font-display { font-family: var(--font-display); }
-.font-body { font-family: var(--font-body); }
-.font-mono { font-family: var(--font-mono); }
+.font-body    { font-family: var(--font-body); }
+.font-mono    { font-family: var(--font-mono); }
 
 /* ============================================================
-   CLIP PATHS (Sharp Corner Cuts — AAA UI language)
+   CLIP PATHS (Sharp Corner Cuts — hardware / chrome language)
    ============================================================ */
 .clip-corner-tl {
   clip-path: polygon(16px 0%, 100% 0%, 100% 100%, 0% 100%, 0% 16px);
@@ -106,27 +117,28 @@ html, body {
 }
 
 /* ============================================================
-   PANELS
+   PANELS — anodised black with cold chrome border
    ============================================================ */
 .panel {
-  background: rgba(10, 10, 15, 0.85);
+  background: rgba(6, 6, 8, 0.92);
   border: 1px solid var(--color-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   position: relative;
 }
 
+/* Subtle horizontal scan-line texture — evokes brushed metal */
 .panel::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: 
+  background:
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 2px,
-      rgba(255,255,255,0.008) 2px,
-      rgba(255,255,255,0.008) 4px
+      rgba(255,255,255,0.006) 2px,
+      rgba(255,255,255,0.006) 4px
     );
   pointer-events: none;
   z-index: 0;
@@ -134,11 +146,11 @@ html, body {
 
 .panel-gold {
   border-color: var(--color-border-active);
-  box-shadow: 0 0 20px var(--color-gold-glow), inset 0 0 20px rgba(200,169,110,0.03);
+  box-shadow: 0 0 22px var(--color-gold-glow), inset 0 0 18px rgba(200,200,210,0.03);
 }
 
 /* ============================================================
-   GOLD RULE LINES
+   SILVER RULE LINES
    ============================================================ */
 .rule-gold {
   border: none;
@@ -163,8 +175,9 @@ html, body {
   font-size: 0.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-bg);
-  background: var(--color-gold);
+  /* Chrome Hearts silver-on-black hardware button */
+  color: #060608;
+  background: linear-gradient(135deg, #C8C8D0 0%, #A0A0AC 50%, #D4D4DC 100%);
   border: none;
   padding: 10px 28px;
   clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
@@ -172,8 +185,8 @@ html, body {
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 .btn-primary:hover {
-  background: var(--color-gold-light);
-  box-shadow: 0 0 20px var(--color-gold-glow);
+  background: linear-gradient(135deg, #D8D8E0 0%, #B8B8C4 50%, #E0E0E8 100%);
+  box-shadow: 0 0 22px var(--color-gold-glow);
 }
 
 .btn-ghost {
@@ -192,8 +205,8 @@ html, body {
 }
 .btn-ghost:hover {
   border-color: var(--color-gold);
-  background: rgba(200,169,110,0.08);
-  box-shadow: 0 0 12px var(--color-gold-glow);
+  background: rgba(180,180,192,0.07);
+  box-shadow: 0 0 14px var(--color-gold-glow);
 }
 
 /* ============================================================
@@ -218,8 +231,8 @@ html, body {
   font-weight: 300;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #e3d7c4; /* High-contrast warm off-white cream */
-  opacity: 1 !important; /* Force full opacity as requested */
+  color: #C8C4BC;   /* cool silver-grey text */
+  opacity: 1 !important;
   cursor: pointer;
   transition: color var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
   position: relative;
@@ -228,7 +241,7 @@ html, body {
 }
 .menu-item:hover,
 .menu-item.active {
-  color: var(--color-gold);
+  color: var(--color-gold-light);
   opacity: 1 !important;
 }
 .menu-item::after {
@@ -274,8 +287,8 @@ html, body {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px #2ECC71; }
-  50% { opacity: 0.6; box-shadow: 0 0 16px #2ECC71; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #4CAF82; }
+  50%       { opacity: 0.6; box-shadow: 0 0 16px #4CAF82; }
 }
 
 /* ============================================================
@@ -283,47 +296,53 @@ html, body {
    ============================================================ */
 @keyframes idle-breathe {
   0%, 100% { transform: scaleY(1) translateY(0); }
-  40% { transform: scaleY(1.015) translateY(-3px); }
-  60% { transform: scaleY(1.018) translateY(-5px); }
+  40%       { transform: scaleY(1.015) translateY(-3px); }
+  60%       { transform: scaleY(1.018) translateY(-5px); }
 }
 
 @keyframes idle-shift {
   0%, 100% { transform: translateX(0) rotate(0deg); }
-  30% { transform: translateX(2px) rotate(0.3deg); }
-  70% { transform: translateX(-2px) rotate(-0.3deg); }
+  30%       { transform: translateX(2px) rotate(0.3deg); }
+  70%       { transform: translateX(-2px) rotate(-0.3deg); }
 }
 
 @keyframes head-bob {
   0%, 100% { transform: rotate(0deg) translateY(0); }
-  25% { transform: rotate(1deg) translateY(-1px); }
-  75% { transform: rotate(-0.5deg) translateY(1px); }
+  25%       { transform: rotate(1deg) translateY(-1px); }
+  75%       { transform: rotate(-0.5deg) translateY(1px); }
 }
 
 @keyframes particle-drift {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 0.6; }
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.6; }
   100% { transform: translateY(-120px) translateX(var(--drift-x, 20px)); opacity: 0; }
 }
 
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  50%       { opacity: 1; }
 }
 
 @keyframes scan-line {
-  0% { top: -2px; }
+  0%   { top: -2px; }
   100% { top: 100%; }
 }
 
 @keyframes bg-shift {
   0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  50%       { background-position: 100% 50%; }
 }
 
 @keyframes noise {
-  0% { background-position: 0 0; }
+  0%   { background-position: 0 0; }
   100% { background-position: 300px 300px; }
+}
+
+/* Chrome Hearts signature chrome shimmer — cross / hardware glint */
+@keyframes chrome-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 /* ============================================================
@@ -331,14 +350,16 @@ html, body {
    ============================================================ */
 .loading-bar-track {
   height: 1px;
-  background: rgba(200, 169, 110, 0.08);
+  background: rgba(180, 180, 192, 0.08);
   position: relative;
   overflow: hidden;
 }
 .loading-bar-fill {
   height: 100%;
-  background: #C8A96E;
-  box-shadow: 0 0 8px rgba(200, 169, 110, 0.5);
+  background: linear-gradient(90deg, #6E6E78, #D4D4DC, #A8A8B0);
+  background-size: 200% 100%;
+  animation: chrome-shimmer 1.4s linear infinite;
+  box-shadow: 0 0 10px rgba(180, 180, 192, 0.4);
   transition: width 0.3s ease;
   position: relative;
 }
@@ -348,7 +369,7 @@ html, body {
    ============================================================ */
 .skill-bar-track {
   height: 3px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.05);
   position: relative;
 }
 .skill-bar-fill {
@@ -379,11 +400,11 @@ html, body {
 }
 
 /* ============================================================
-   ACHIEVEMENT BADGE
+   ACHIEVEMENT BADGE — chrome-edged hardware badge
    ============================================================ */
 .achievement-badge {
-  background: rgba(200,169,110,0.08);
-  border: 1px solid rgba(200,169,110,0.25);
+  background: rgba(180,180,192,0.06);
+  border: 1px solid rgba(180,180,192,0.2);
   padding: 10px 14px;
   position: relative;
   clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
@@ -391,22 +412,22 @@ html, body {
   cursor: default;
 }
 .achievement-badge:hover {
-  background: rgba(200,169,110,0.15);
-  border-color: rgba(200,169,110,0.6);
-  box-shadow: 0 0 16px var(--color-gold-glow);
+  background: rgba(180,180,192,0.12);
+  border-color: rgba(212,212,220,0.55);
+  box-shadow: 0 0 18px var(--color-gold-glow);
   transform: translateY(-2px);
 }
 
 /* ============================================================
-   TECH TAG
+   TECH TAG — cold steel mono tag
    ============================================================ */
 .tech-tag {
   font-family: var(--font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.05em;
   color: var(--color-teal);
-  background: rgba(78,205,196,0.08);
-  border: 1px solid rgba(78,205,196,0.25);
+  background: rgba(139,168,184,0.08);
+  border: 1px solid rgba(139,168,184,0.22);
   padding: 3px 8px;
   display: inline-block;
 }
@@ -415,7 +436,7 @@ html, body {
    MISSION CARD
    ============================================================ */
 .mission-card {
-  background: rgba(10,10,15,0.8);
+  background: rgba(6,6,8,0.88);
   border: 1px solid var(--color-border);
   position: relative;
   cursor: pointer;
@@ -426,23 +447,23 @@ html, body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(200,169,110,0.05) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(180,180,192,0.04) 0%, transparent 60%);
   opacity: 0;
   transition: opacity var(--transition-mid);
 }
 .mission-card:hover::before { opacity: 1; }
 .mission-card:hover {
   border-color: var(--color-gold);
-  box-shadow: 0 0 30px rgba(200,169,110,0.15), inset 0 0 20px rgba(200,169,110,0.03);
+  box-shadow: 0 0 28px rgba(180,180,192,0.12), inset 0 0 18px rgba(180,180,192,0.025);
   transform: translateX(4px);
 }
 .mission-card.selected {
   border-color: var(--color-gold);
-  box-shadow: 0 0 40px rgba(200,169,110,0.2);
+  box-shadow: 0 0 36px rgba(180,180,192,0.18);
 }
 
 /* ============================================================
-   TERMINAL
+   TERMINAL — gunmetal steel terminal
    ============================================================ */
 .terminal-line {
   font-family: var(--font-mono);
@@ -457,31 +478,31 @@ html, body {
 }
 
 /* ============================================================
-   NOISE OVERLAY
+   NOISE OVERLAY — fine grain like brushed metal surface
    ============================================================ */
 .noise-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 5; /* Lowered below active panels (z-10) and menu (z-40) but above 3D world (z-0) */
-  opacity: 0.025;
+  z-index: 5;
+  opacity: 0.032;   /* slightly lifted — grain reads as brushed steel texture */
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 200px;
 }
 
 /* ============================================================
-   VIGNETTE
+   VIGNETTE — deeper black void at edges
    ============================================================ */
 .vignette {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 4; /* Lowered below active panels (z-10) and menu (z-40) but above 3D world (z-0) */
-  background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.85) 100%);
+  z-index: 4;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.92) 100%);
 }
 
 /* ============================================================
-   CORNER DECORATIONS
+   CORNER DECORATIONS — silver hardware corners
    ============================================================ */
 .corner-tl::before,
 .corner-tl::after {
@@ -523,7 +544,7 @@ html, body {
 }
 
 /* ============================================================
-   RANGE INPUT STYLE
+   RANGE INPUT — chrome diamond thumb
    ============================================================ */
 input[type="range"] {
   -webkit-appearance: none;
@@ -533,7 +554,7 @@ input[type="range"] {
   width: 100%;
 }
 input[type="range"]::-webkit-slider-track {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.07);
   height: 2px;
 }
 input[type="range"]::-webkit-slider-thumb {
@@ -541,7 +562,7 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 12px;
   height: 12px;
-  background: var(--color-gold);
+  background: linear-gradient(135deg, #D4D4DC, #A0A0AC);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   box-shadow: 0 0 8px var(--color-gold-glow);
   margin-top: -5px;

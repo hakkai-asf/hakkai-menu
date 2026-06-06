@@ -13,7 +13,7 @@ const NAV_ITEMS: { id: Section; label: string }[] = [
   { id: 'settings',  label: 'SETTINGS' },
 ];
 
-/* ── Elden-Ring-style rune SVG emblem ── */
+/* ── Chrome Hearts rune emblem — black & silver ── */
 function RuneEmblem() {
   return (
     <svg
@@ -22,55 +22,40 @@ function RuneEmblem() {
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: '100%', height: '100%' }}
     >
-      {/* Outer glowing ring */}
       <circle cx="200" cy="200" r="170" stroke="url(#rg1)" strokeWidth="0.8" opacity="0.5" />
       <circle cx="200" cy="200" r="155" stroke="url(#rg1)" strokeWidth="0.4" opacity="0.3" />
-      <circle cx="200" cy="200" r="110" stroke="url(#rg1)" strokeWidth="1" opacity="0.6" />
-
-      {/* Cross arms */}
+      <circle cx="200" cy="200" r="110" stroke="url(#rg1)" strokeWidth="1"   opacity="0.6" />
       <line x1="200" y1="30"  x2="200" y2="370" stroke="url(#rg1)" strokeWidth="0.8" opacity="0.5" />
       <line x1="30"  y1="200" x2="370" y2="200" stroke="url(#rg1)" strokeWidth="0.8" opacity="0.5" />
-
-      {/* Diagonal arms (smaller) */}
       <line x1="80"  y1="80"  x2="320" y2="320" stroke="url(#rg1)" strokeWidth="0.4" opacity="0.25" />
       <line x1="320" y1="80"  x2="80"  y2="320" stroke="url(#rg1)" strokeWidth="0.4" opacity="0.25" />
-
-      {/* Inner ornamental web lines */}
       {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
         <line
           key={angle}
-          x1="200"
-          y1="200"
+          x1="200" y1="200"
           x2={200 + 170 * Math.cos((angle * Math.PI) / 180)}
           y2={200 + 170 * Math.sin((angle * Math.PI) / 180)}
-          stroke="url(#rg1)"
-          strokeWidth="0.3"
-          opacity="0.2"
+          stroke="url(#rg1)" strokeWidth="0.3" opacity="0.2"
         />
       ))}
-
-      {/* Inner starburst */}
       <circle cx="200" cy="200" r="18" fill="url(#innerGlow)" opacity="0.9" />
-      <circle cx="200" cy="200" r="8"  fill="#C8A96E" opacity="0.8" />
-
-      {/* Ornamental tick marks on outer ring */}
+      <circle cx="200" cy="200" r="8"  fill="#A8A8B0" opacity="0.8" />
       {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
         const rad = (angle * Math.PI) / 180;
         const x1 = 200 + 160 * Math.cos(rad);
         const y1 = 200 + 160 * Math.sin(rad);
         const x2 = 200 + 173 * Math.cos(rad);
         const y2 = 200 + 173 * Math.sin(rad);
-        return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#C8A96E" strokeWidth="1.5" opacity="0.7" />;
+        return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#A8A8B0" strokeWidth="1.5" opacity="0.7" />;
       })}
-
       <defs>
         <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#E8C98E" />
-          <stop offset="100%" stopColor="#7A5C2A" />
+          <stop offset="0%"   stopColor="#D4D4DC" />
+          <stop offset="100%" stopColor="#4A4A52" />
         </radialGradient>
         <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#F0D890" stopOpacity="1" />
-          <stop offset="100%" stopColor="#C8A96E" stopOpacity="0" />
+          <stop offset="0%"   stopColor="#E0E0E8" stopOpacity="1" />
+          <stop offset="100%" stopColor="#A8A8B0" stopOpacity="0" />
         </radialGradient>
       </defs>
     </svg>
@@ -79,7 +64,7 @@ function RuneEmblem() {
 
 export default function MainMenu() {
   const { currentSection, navigateTo, isTitleScreen, setIsTitleScreen } = useGame();
-  const { playHover, playSelect, playTransition, playBGM, playConfirm } = useAudio();
+  const { playHover, playSelect, playTransition, playBGM, playStartGame } = useAudio();
   const [hoveredItem, setHoveredItem] = useState<string | Section | null>(null);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -92,15 +77,18 @@ export default function MainMenu() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const showMenu = !isMobile || currentSection === 'menu' || mobileMenuOpen;
-
-  /* ── Title-screen nav: select item and enter directly ── */
+  /* ── Title-screen nav ──
+     playStartGame() returns a Promise. We await it before calling
+     playBGM so the AudioContext is guaranteed to be running first.
+     BGM uses the same context — if we call it simultaneously it
+     races against a suspended state and gets silently dropped.
+  */
   const handleTitleMenuSelect = (id: Section) => {
-    playBGM('cinematic');
-    playConfirm();
     setIsTitleScreen(false);
+    playStartGame().then(() => {
+      playBGM('cinematic');
+    });
     setTimeout(() => {
-      playSelect();
       navigateTo(id);
     }, 80);
   };
@@ -109,7 +97,6 @@ export default function MainMenu() {
   const handleSelect = (id: Section) => {
     if (isMobile) setMobileMenuOpen(false);
     if (id === currentSection) {
-      // Clicking the active item again → close/unselect, return to menu home
       playSelect();
       navigateTo('menu');
     } else {
@@ -119,8 +106,6 @@ export default function MainMenu() {
     }
   };
 
-  const isMenuHome = currentSection === 'menu';
-
   const TITLE_MENU_ITEMS: { id: Section; label: string }[] = [
     { id: 'projects', label: 'CONTINUE' },
     { id: 'projects', label: 'NEW GAME' },
@@ -129,48 +114,39 @@ export default function MainMenu() {
   ];
 
   /* ════════════════════════════════════════════
-     ELDEN RING TITLE SCREEN
+     TITLE SCREEN
      ════════════════════════════════════════════ */
   if (isTitleScreen) {
     return (
       <div
         className="fixed inset-0 flex flex-col items-center justify-between pointer-events-auto"
-        style={{ background: '#050505', padding: '15vh 0 10vh', zIndex: 99999, opacity: 1 }}
+        style={{ background: '#050505', padding: '15vh 0 10vh', zIndex: 99999 }}
       >
-        {/* ── Emblem (dead center, behind everything) ── */}
+        {/* Emblem */}
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 0.3, scale: 1 }}
           transition={{ duration: 3.5, ease: 'easeOut' }}
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
+            position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 'min(70vw, 880px)',
-            height: 'min(70vw, 880px)',
+            width: 'min(70vw, 880px)', height: 'min(70vw, 880px)',
             pointerEvents: 'none',
           }}
         >
           <RuneEmblem />
         </motion.div>
 
-        {/* Ambient radial glow */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '70vw',
-            height: '70vw',
-            borderRadius: '50%',
-            background: 'radial-gradient(ellipse at center, rgba(200,169,110,0.1) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Ambient glow */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '70vw', height: '70vw', borderRadius: '50%',
+          background: 'radial-gradient(ellipse at center, rgba(180,180,192,0.08) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }} />
 
-        {/* ── TITLE (top section, fully centered) ── */}
+        {/* Title */}
         <motion.div
           className="relative z-10 flex flex-col items-center w-full px-8"
           style={{ maxWidth: '100vw', textAlign: 'center' }}
@@ -178,39 +154,35 @@ export default function MainMenu() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2.4, ease: 'easeOut', delay: 0.4 }}
         >
-          <h1
-            style={{
-              fontFamily: '"Cinzel Decorative", "Cinzel", "Rajdhani", serif',
-              fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              color: '#E8C98E',
-              textTransform: 'uppercase',
-              textShadow: '0 0 40px rgba(232,201,142,0.25), 0 0 100px rgba(200,130,30,0.1)',
-              lineHeight: 1.2,
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
-              maxWidth: '90vw',
-            }}
-          >
+          <h1 style={{
+            fontFamily: '"Cinzel Decorative", "Cinzel", "Rajdhani", serif',
+            fontSize: 'clamp(1.8rem, 5vw, 4.5rem)',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            color: '#D4D4DC',
+            textTransform: 'uppercase',
+            textShadow: '0 0 40px rgba(212,212,220,0.2), 0 0 100px rgba(160,160,172,0.08)',
+            lineHeight: 1.2,
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            maxWidth: '90vw',
+          }}>
             Harry&apos;s Portfolio
           </h1>
 
-          {/* ornamental divider */}
           <motion.div
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 1.6, delay: 1.2, ease: 'easeOut' }}
             style={{
-              marginTop: '1.2rem',
-              height: '1px',
+              marginTop: '1.2rem', height: '1px',
               width: 'clamp(160px, 35vw, 440px)',
-              background: 'linear-gradient(90deg, transparent, #C8A96E 30%, #C8A96E 70%, transparent)',
+              background: 'linear-gradient(90deg, transparent, #A8A8B0 30%, #A8A8B0 70%, transparent)',
             }}
           />
         </motion.div>
 
-        {/* ── BOTTOM: TITLE MENU (Elden Ring style) ── */}
+        {/* Bottom title menu */}
         <motion.div
           className="absolute flex flex-col items-center gap-4"
           initial={{ opacity: 0, y: 20 }}
@@ -236,49 +208,35 @@ export default function MainMenu() {
                       fontSize: '1.05rem',
                       fontWeight: isItemHovered ? 400 : 300,
                       letterSpacing: '0.22em',
-                      color: isItemHovered ? '#F0D890' : '#C8A96E',
+                      color: isItemHovered ? '#E0E0E8' : '#A8A8B0',
                       textTransform: 'uppercase',
                       transition: 'color 0.18s ease, font-weight 0.18s ease',
-                      textShadow: isItemHovered ? '0 0 15px rgba(240,216,144,0.55)' : 'none',
+                      textShadow: isItemHovered ? '0 0 15px rgba(220,220,228,0.5)' : 'none',
                     }}
                   >
-                    {/* Diamond selector indicator */}
-                    <span
-                      style={{
-                        position: 'absolute',
-                        left: '-24px',
-                        color: '#F0D890',
-                        fontSize: '0.75rem',
-                        opacity: isItemHovered ? 1 : 0,
-                        transition: 'opacity 0.18s ease, transform 0.18s ease',
-                        transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
-                        textShadow: '0 0 10px rgba(240,216,144,0.7)',
-                      }}
-                    >
-                      ◈
-                    </span>
+                    <span style={{
+                      position: 'absolute', left: '-24px',
+                      color: '#D4D4DC', fontSize: '0.75rem',
+                      opacity: isItemHovered ? 1 : 0,
+                      transition: 'opacity 0.18s ease, transform 0.18s ease',
+                      transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
+                      textShadow: '0 0 10px rgba(212,212,220,0.7)',
+                    }}>◈</span>
                     {item.label}
-                    <span
-                      style={{
-                        position: 'absolute',
-                        right: '-24px',
-                        color: '#F0D890',
-                        fontSize: '0.75rem',
-                        opacity: isItemHovered ? 1 : 0,
-                        transition: 'opacity 0.18s ease, transform 0.18s ease',
-                        transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
-                        textShadow: '0 0 10px rgba(240,216,144,0.7)',
-                      }}
-                    >
-                      ◈
-                    </span>
+                    <span style={{
+                      position: 'absolute', right: '-24px',
+                      color: '#D4D4DC', fontSize: '0.75rem',
+                      opacity: isItemHovered ? 1 : 0,
+                      transition: 'opacity 0.18s ease, transform 0.18s ease',
+                      transform: isItemHovered ? 'scale(1)' : 'scale(0.5)',
+                      textShadow: '0 0 10px rgba(212,212,220,0.7)',
+                    }}>◈</span>
                   </motion.button>
                 </li>
               );
             })}
           </ul>
 
-          {/* bottom copyright line */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.35 }}
@@ -288,7 +246,7 @@ export default function MainMenu() {
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: '0.5rem',
               letterSpacing: '0.18em',
-              color: '#C8A96E',
+              color: '#A8A8B0',
               textTransform: 'uppercase',
             }}
           >
@@ -300,53 +258,179 @@ export default function MainMenu() {
   }
 
   /* ════════════════════════════════════════════
-     INNER MAIN MENU (compact nav rail)
+     MOBILE HAMBURGER BUTTON
      ════════════════════════════════════════════ */
-  if (!showMenu) {
+  if (isMobile && !mobileMenuOpen) {
     return (
-      <div className="fixed top-6 right-6 z-[99999]">
-        <button 
+      <div className="fixed top-5 right-5 z-[99999]">
+        <button
           onClick={() => { playSelect(); setMobileMenuOpen(true); }}
-          className="bg-[#0a0a0c]/80 backdrop-blur-md border border-[#C8A96E]/50 rounded-md flex flex-col gap-1.5 justify-center items-center"
-          style={{ width: '48px', height: '48px' }}
+          className="flex flex-col gap-1.5 justify-center items-center"
+          style={{
+            width: 48, height: 48,
+            background: 'rgba(6,6,8,0.88)',
+            backdropFilter: 'blur(14px)',
+            border: '1px solid rgba(168,168,176,0.35)',
+            clipPath: 'polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px)',
+          }}
+          aria-label="Open menu"
         >
-          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
-          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
-          <span className="block w-6 h-0.5 bg-[#E8C98E]"></span>
+          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
+          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
+          <span style={{ display: 'block', width: 22, height: 1.5, background: '#D4D4DC' }} />
         </button>
       </div>
     );
   }
 
+  /* ════════════════════════════════════════════
+     MOBILE FULL-SCREEN OVERLAY MENU
+     ════════════════════════════════════════════ */
+  if (isMobile && mobileMenuOpen) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          key="mobile-overlay"
+          className="fixed inset-0 z-[99999] flex flex-col pointer-events-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          style={{ background: 'rgba(6,6,8,0.97)', backdropFilter: 'blur(18px)' }}
+        >
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80vw', height: '80vw',
+            pointerEvents: 'none', opacity: 0.06,
+          }}>
+            <RuneEmblem />
+          </div>
+
+          <div className="flex justify-end p-5">
+            <button
+              onClick={() => { playSelect(); setMobileMenuOpen(false); }}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(168,168,176,0.3)',
+                color: '#A8A8B0',
+                fontFamily: 'Cinzel, Georgia, serif',
+                fontSize: '0.7rem',
+                letterSpacing: '0.2em',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                clipPath: 'polygon(4px 0%, 100% 0%, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0% 100%, 0% 4px)',
+              }}
+            >
+              ✕ CLOSE
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center px-10 pb-16">
+            <p style={{
+              fontFamily: 'Cinzel, Georgia, serif',
+              fontSize: '0.6rem',
+              fontWeight: 400,
+              letterSpacing: '0.3em',
+              color: '#6E6E78',
+              textTransform: 'uppercase',
+              marginBottom: '2.5rem',
+            }}>
+              MAIN MENU
+            </p>
+
+            <div style={{
+              width: '100%', maxWidth: 280, height: 1, marginBottom: '2rem',
+              background: 'linear-gradient(90deg, transparent, #A8A8B0 40%, #A8A8B0 60%, transparent)',
+            }} />
+
+            <ul className="flex flex-col items-center gap-1 w-full" style={{ listStyle: 'none', padding: 0, maxWidth: 320 }}>
+              {NAV_ITEMS.map((item, i) => {
+                const isActive  = currentSection === item.id;
+                const isHovered = hoveredItem === item.id;
+                return (
+                  <motion.li
+                    key={item.id}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.055 }}
+                    style={{ width: '100%' }}
+                  >
+                    <button
+                      onClick={() => handleSelect(item.id)}
+                      onTouchStart={() => setHoveredItem(item.id)}
+                      onTouchEnd={() => setHoveredItem(null)}
+                      onMouseEnter={() => { setHoveredItem(item.id); playHover(); }}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 10,
+                        padding: '14px 0',
+                        background: 'transparent',
+                        border: 'none',
+                        borderBottom: '1px solid rgba(168,168,176,0.07)',
+                        cursor: 'pointer',
+                        fontFamily: 'Cinzel, Georgia, serif',
+                        fontSize: isActive ? '1.2rem' : '1.05rem',
+                        fontWeight: isActive ? 400 : 300,
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        color: isActive ? '#D4D4DC' : (isHovered ? '#C0C0C8' : '#8A8A94'),
+                        textShadow: isActive ? '0 0 14px rgba(212,212,220,0.45)' : 'none',
+                        transition: 'color 0.18s ease, font-size 0.18s ease',
+                      }}
+                    >
+                      <span style={{
+                        width: 5, height: 5, borderRadius: '50%', flexShrink: 0,
+                        background: isActive ? '#D4D4DC' : 'transparent',
+                        boxShadow: isActive ? '0 0 8px rgba(212,212,220,0.6)' : 'none',
+                        border: isActive ? 'none' : '1px solid rgba(168,168,176,0.25)',
+                        transition: 'all 0.18s ease',
+                      }} />
+                      {item.label}
+                    </button>
+                  </motion.li>
+                );
+              })}
+            </ul>
+
+            <div style={{
+              width: '100%', maxWidth: 280, height: 1, marginTop: '2rem',
+              background: 'linear-gradient(90deg, transparent, #A8A8B0 40%, #A8A8B0 60%, transparent)',
+            }} />
+
+            <p style={{
+              marginTop: '1.5rem',
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: '0.45rem',
+              letterSpacing: '0.15em',
+              color: '#3A3A42',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+            }}>
+              © 2024 Harry Nielsen M. Lagto
+            </p>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  /* ════════════════════════════════════════════
+     DESKTOP NAV RAIL
+     ════════════════════════════════════════════ */
   return (
-    <div className="fixed inset-0 pointer-events-none flex" style={{ zIndex: 99999, backgroundColor: isMobile && currentSection !== 'menu' ? 'rgba(5,5,5,0.95)' : 'transparent' }}>
+    <div className="fixed inset-0 pointer-events-none flex" style={{ zIndex: 99999 }}>
       <motion.div
         className="absolute pointer-events-auto flex flex-col"
         initial={false}
-        animate={isMobile ? {
-          left: '24px',
-          top: 'auto',
-          bottom: '24px',
-          x: '0%',
-          y: '0%',
-        } : {
-          left: '48px',
-          top: 'auto',
-          bottom: '60px',
-          x: '0%',
-          y: '0%',
-        }}
+        animate={{ left: '48px', top: 'auto', bottom: '60px', x: '0%', y: '0%' }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: isMobile ? 'calc(100vw - 48px)' : 'clamp(260px, 28vw, 380px)', zIndex: 99999, opacity: 1 }}
+        style={{ width: 'clamp(260px, 28vw, 380px)', zIndex: 99999, opacity: 1 }}
       >
-        {isMobile && currentSection !== 'menu' && (
-          <button 
-             className="absolute -top-16 right-0 text-[#E8C98E] font-['Cinzel'] tracking-widest text-sm bg-transparent border border-[#E8C98E]/50 px-4 py-2 rounded"
-             onClick={() => { playSelect(); setMobileMenuOpen(false); }}
-          >
-            ✕ CLOSE
-          </button>
-        )}
         <motion.nav
           className="relative"
           initial={{ opacity: 0 }}
@@ -361,7 +445,7 @@ export default function MainMenu() {
               fontSize: '0.65rem',
               fontWeight: 400,
               letterSpacing: '0.25em',
-              color: '#E8C98E',
+              color: '#A8A8B0',
               opacity: 1,
             }}
           >
@@ -389,17 +473,15 @@ export default function MainMenu() {
                     aria-current={isActive ? 'page' : undefined}
                     style={{ width: '100%' }}
                   >
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: isActive ? (isMobile ? '1.25rem' : '1.55rem') : (isMobile ? '1.05rem' : '1.35rem'),
-                        fontWeight: isActive ? 400 : 300,
-                        color: isActive ? '#E8C98E' : '#ffffff',
-                        opacity: 1,
-                        textShadow: isActive ? '0 0 12px rgba(232, 201, 142, 0.6)' : 'none',
-                        transition: 'font-size 0.2s ease, color 0.2s ease, font-weight 0.2s ease',
-                      }}
-                    >
+                    <span style={{
+                      display: 'block',
+                      fontSize: isActive ? '1.55rem' : '1.35rem',
+                      fontWeight: isActive ? 400 : 300,
+                      color: isActive ? '#D4D4DC' : '#ffffff',
+                      opacity: 1,
+                      textShadow: isActive ? '0 0 12px rgba(212,212,220,0.55)' : 'none',
+                      transition: 'font-size 0.2s ease, color 0.2s ease, font-weight 0.2s ease',
+                    }}>
                       {item.label}
                     </span>
                     <AnimatePresence>
@@ -408,10 +490,16 @@ export default function MainMenu() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          style={{ display: 'block', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.1em', color: '#C8A96E', textTransform: 'uppercase', paddingBottom: 2 }}
-                        >
-                          {/* sub-label removed per user request */}
-                        </motion.span>
+                          style={{
+                            display: 'block',
+                            fontFamily: 'JetBrains Mono, monospace',
+                            fontSize: '0.55rem',
+                            letterSpacing: '0.1em',
+                            color: '#A8A8B0',
+                            textTransform: 'uppercase',
+                            paddingBottom: 2,
+                          }}
+                        />
                       )}
                     </AnimatePresence>
                   </button>
