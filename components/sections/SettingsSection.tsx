@@ -33,9 +33,6 @@ function OrnateDivider() {
   );
 }
 
-// ── Responsive SettingRow ──────────────────────────────────────────────────
-// On mobile (isMobile=true) the row stacks: label on top, control below.
-// On desktop it stays side-by-side.
 function SettingRow({
   label, sub, children, stacked = false,
 }: {
@@ -78,22 +75,62 @@ function SettingRow({
 
 function VolumeSlider({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   const { playHover } = useAudio();
+  // Use raw float (0–100) for pixel-accurate positioning — no rounding
+  const pct = value * 100;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 220 }}>
+      {/* Numeric readout — round only for display */}
       <span style={{
         fontFamily: 'JetBrains Mono, monospace',
-        fontSize: '0.78rem', fontWeight: 700, color: '#C8C8D0', width: 32, textAlign: 'right', flexShrink: 0,
+        fontSize: '0.78rem', fontWeight: 700, color: '#C8C8D0',
+        width: 32, textAlign: 'right', flexShrink: 0,
       }}>
-        {Math.round(value * 100)}
+        {Math.round(pct)}
       </span>
-      <input
-        type="range" min={0} max={1} step={0.01}
-        value={value}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        onMouseEnter={() => playHover()}
-        aria-label={label}
-        style={{ flex: 1, accentColor: '#A8A8B8', cursor: 'pointer', minWidth: 0 }}
-      />
+
+      {/* Custom track + thumb container */}
+      <div style={{ flex: 1, position: 'relative', height: 24, display: 'flex', alignItems: 'center', minWidth: 0 }}>
+        {/* Track background */}
+        <div style={{
+          position: 'absolute', left: 0, right: 0, height: 2,
+          background: 'rgba(168,168,176,0.20)',
+          borderRadius: 1,
+        }} />
+        {/* Track fill — no transition so it follows pointer instantly */}
+        <div style={{
+          position: 'absolute', left: 0, height: 2,
+          width: `${pct}%`,
+          background: 'linear-gradient(90deg, #6E6E82, #D4D4DC)',
+          borderRadius: 1,
+          boxShadow: '0 0 6px rgba(200,200,255,0.3)',
+        }} />
+        {/* Diamond thumb — no transition */}
+        <div style={{
+          position: 'absolute',
+          left: `calc(${pct}% - 6px)`,
+          width: 12, height: 12,
+          background: '#D4D4DC',
+          clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+          boxShadow: '0 0 8px rgba(212,212,220,0.55)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+        {/* Native range — invisible, handles all interaction */}
+        <input
+          type="range" min={0} max={1} step={0.001}
+          value={value}
+          onChange={e => onChange(parseFloat(e.target.value))}
+          onMouseEnter={() => playHover()}
+          aria-label={label}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            opacity: 0, cursor: 'pointer',
+            margin: 0, padding: 0, zIndex: 2,
+            WebkitAppearance: 'none',
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -191,7 +228,6 @@ export default function SettingsSection() {
 
           {/* ── AUDIO ── */}
           <PanelCard heading="Audio" delay={0.1}>
-            {/* Volume rows: stacked on mobile so slider doesn't collide with label */}
             <SettingRow label="Master Volume" sub="Controls all audio output" stacked={isMobile}>
               <VolumeSlider label="Master Volume" value={settings.masterVolume} onChange={v => updateSetting('masterVolume', v)} />
             </SettingRow>
@@ -201,8 +237,6 @@ export default function SettingsSection() {
             <SettingRow label="Effects Volume" sub="UI interaction sounds" stacked={isMobile}>
               <VolumeSlider label="Effects Volume" value={settings.sfxVolume} onChange={v => updateSetting('sfxVolume', v)} />
             </SettingRow>
-
-            {/* BGM Track: always stacked so buttons never overlap label */}
             <SettingRow label="BGM Track" sub="Select background music" stacked>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {TRACKS.map(t => (
