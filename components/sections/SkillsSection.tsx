@@ -190,7 +190,6 @@ export default function SkillsSection() {
                   borderBottom:    `2px solid ${isActive ? '#A8A8B0' : 'transparent'}`,
                   background:      isActive ? 'rgba(212,212,220,0.05)' : 'transparent',
                   border:          'none',
-                  borderBottom:    `2px solid ${isActive ? '#A8A8B0' : 'transparent'}`,
                   whiteSpace:      'nowrap',
                   cursor:          'pointer',
                   transition:      'all 0.15s',
