@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAudio } from '@/lib/contexts/AudioContext';
-import CharacterViewer from '@/components/Character/CharacterViewer';
+import CharacterViewer, { CharacterKey } from '@/components/Character/CharacterViewer';
 
 const ACHIEVEMENTS = [
   { title: "Dean's Lister",           desc: 'Academic excellence recognition' },
@@ -34,6 +34,12 @@ const LANGUAGES = [
   { lang: 'English',  level: 'Fluent' },
 ];
 
+const CHARACTERS: { key: CharacterKey; label: string }[] = [
+  { key: 'knight1', label: 'I' },
+  { key: 'knight2', label: 'II' },
+  { key: 'knight3', label: 'III' },
+];
+
 function OrnateDivider() {
   return (
     <div className="flex items-center justify-center my-3 w-full opacity-70">
@@ -46,13 +52,19 @@ function OrnateDivider() {
 
 export default function ProfileSection() {
   const { playHover, playToggle } = useAudio();
-  const [rotation, setRotation] = useState(0);
-  const [zoom, setZoom]         = useState(1);
+  const [rotation,  setRotation]  = useState(0);
+  const [zoom,      setZoom]      = useState(1);
+  const [character, setCharacter] = useState<CharacterKey>('knight1');
 
-  const rotate  = (dir: number) => { setRotation(r => r + dir * 30); playToggle(); };
   const zoomIn  = () => { setZoom(z => Math.min(1.4, z + 0.1)); playToggle(); };
   const zoomOut = () => { setZoom(z => Math.max(0.7, z - 0.1)); playToggle(); };
   const reset   = () => { setRotation(0); setZoom(1); playToggle(); };
+
+  const selectCharacter = (key: CharacterKey) => {
+    setCharacter(key);
+    setRotation(0);
+    playToggle();
+  };
 
   return (
     <motion.div
@@ -77,7 +89,7 @@ export default function ProfileSection() {
         animate={{ x: 0,   opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        {/* Character canvas — 20% smaller: mobile 224px (was 280), desktop 384px (was 480) */}
+        {/* Character canvas */}
         <div className="w-full">
           <div
             className="w-full relative"
@@ -85,6 +97,7 @@ export default function ProfileSection() {
           >
             <CharacterViewer
               mode="profile"
+              character={character}
               rotation={rotation}
               zoom={zoom}
               onRotate={d => setRotation(r => r + d)}
@@ -92,14 +105,47 @@ export default function ProfileSection() {
           </div>
         </div>
 
-        {/* Viewer controls */}
+        {/* ── Character selector ── */}
+        <div className="flex items-center gap-1 mt-3">
+          {CHARACTERS.map(({ key, label }) => {
+            const active = character === key;
+            return (
+              <button
+                key={key}
+                onClick={() => selectCharacter(key)}
+                onMouseEnter={() => playHover()}
+                title={`Switch to ${key}`}
+                style={{
+                  fontFamily: 'Cinzel, Georgia, serif',
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.12em',
+                  padding: '5px 12px',
+                  minWidth: 40,
+                  border: active
+                    ? '1px solid rgba(200,169,110,0.8)'
+                    : '1px solid rgba(168,168,176,0.25)',
+                  background: active
+                    ? 'rgba(200,169,110,0.12)'
+                    : 'rgba(168,168,176,0.05)',
+                  color: active ? '#c8a96e' : '#A8A8B0',
+                  clipPath: 'polygon(5px 0%,100% 0%,100% calc(100% - 5px),calc(100% - 5px) 100%,0% 100%,0% 5px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Viewer controls (zoom + reset only) ── */}
         <div className="flex items-center gap-1.5 md:gap-2 mt-2">
           {[
-            { label: '↺', action: () => rotate(-1), tip: 'Rotate Left'  },
-            { label: '↻', action: () => rotate(1),  tip: 'Rotate Right' },
-            { label: '+', action: zoomIn,            tip: 'Zoom In'      },
-            { label: '−', action: zoomOut,           tip: 'Zoom Out'     },
-            { label: '⊙', action: reset,             tip: 'Reset'        },
+            { label: '+', action: zoomIn,  tip: 'Zoom In'  },
+            { label: '−', action: zoomOut, tip: 'Zoom Out' },
+            { label: '⊙', action: reset,   tip: 'Reset'    },
           ].map(({ label, action, tip }) => (
             <button
               key={tip}
@@ -188,7 +234,6 @@ export default function ProfileSection() {
             Aspiring Fullstack Developer
           </p>
 
-          {/* Meta info — 2-col grid on mobile for compactness */}
           <div
             style={{
               display: 'grid',
@@ -308,7 +353,6 @@ export default function ProfileSection() {
             EQUIPPED TECHNOLOGIES
           </p>
 
-          {/* 3-col grid on mobile so chips don't stretch awkwardly */}
           <div
             style={{
               display: 'grid',
