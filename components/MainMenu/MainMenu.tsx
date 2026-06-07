@@ -11,6 +11,7 @@ const NAV_ITEMS: { id: Section; label: string }[] = [
   { id: 'skills',    label: 'SKILLS' },
   { id: 'contact',   label: 'CONTACT' },
   { id: 'archive',   label: 'PORTFOLIO ARCHIVE' },
+  { id: 'about',  label: 'ABOUT ME' },
   { id: 'settings',  label: 'SETTINGS' },
 ];
 

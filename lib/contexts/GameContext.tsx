@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 
-export type Section = 'menu' | 'profile' | 'projects' | 'skills' | 'contact' | 'archive' | 'settings';
+export type Section = 'menu' | 'profile' | 'projects' | 'skills' | 'contact' | 'archive'  | 'settings' | 'about';
 
 export interface GameSettings {
   masterVolume: number;

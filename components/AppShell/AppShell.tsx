@@ -15,6 +15,8 @@ import SkillsSection from '@/components/sections/SkillsSection';
 import ContactSection from '@/components/sections/ContactSection';
 import ArchiveSection from '@/components/sections/ArchiveSection';
 import SettingsSection from '@/components/sections/SettingsSection';
+import AboutmeSection from '@/components/sections/AboutmeSection';
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isLoading, isGameStarted, currentSection, settings } = useGame();
 
@@ -40,15 +42,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Section content panel (right area) */}
           <AnimatePresence mode="wait">
-
             {currentSection === 'profile' && <ProfileSection key="profile" />}
             {currentSection === 'projects' && <ProjectsSection key="projects" />}
             {currentSection === 'skills' && <SkillsSection key="skills" />}
             {currentSection === 'contact' && <ContactSection key="contact" />}
             {currentSection === 'archive' && <ArchiveSection key="archive" />}
             {currentSection === 'settings' && <SettingsSection key="settings" />}
+            {currentSection === 'about' && <AboutmeSection key="about" />}
           </AnimatePresence>
-
         </>
       )}
     </div>
